@@ -1,0 +1,1 @@
+window.addEventListener("elementor/frontend/init",(function(){window.elementorFrontend.hooks.addAction("frontend/element_ready/code-snippets-source.default",(function(){return window.Prism?Prism.highlightAll():window.CODE_SNIPPETS_PRISM?window.CODE_SNIPPETS_PRISM.highlightAll():console.error("Could not find instance of Prism for code-snippets-source block")}))}));
