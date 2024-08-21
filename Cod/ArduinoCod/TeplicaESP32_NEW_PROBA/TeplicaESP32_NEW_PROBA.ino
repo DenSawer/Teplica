@@ -13,6 +13,7 @@
 #define DHT_PIN 4           // Пин для подключения датчика температуры и влажности DHT22
 #define HEAT_LED_PIN 32     // Пин для управления подогревом (красный светодиод)
 #define COOL_LED_PIN 33     // Пин для управления охлаждением (синий светодиод)
+#define SOIL_MOISTURE_PIN 35 // Пин для подключения датчика влажности почвы HW-080
 
 // Определение типа датчика DHT
 #define DHTTYPE DHT22       // Указываем, что используем датчик DHT22
@@ -54,6 +55,7 @@ void setup() {
   pinMode(LAMP_PIN, OUTPUT);     // Пин для лампы в режиме выхода
   pinMode(HEAT_LED_PIN, OUTPUT); // Пин для красного светодиода в режиме выхода
   pinMode(COOL_LED_PIN, OUTPUT); // Пин для синего светодиода в режиме выхода
+  pinMode(SOIL_MOISTURE_PIN, INPUT); // Пин для датчика влажности почвы в режиме входа
 
   // Инициализация DHT22
   dht.begin();                   // Запуск работы с датчиком DHT22
@@ -145,41 +147,47 @@ void loop() {
       digitalWrite(COOL_LED_PIN, LOW);   // Выключаем охлаждение
     }
 
-    // Чтение текущего времени с RTC
-    DateTime now = rtc.now();  // Получаем текущее время
+    // Чтение данных с датчика влажности почвы
+    int soilMoistureValue = analogRead(SOIL_MOISTURE_PIN); // Чтение аналогового значения с пина датчика влажности почвы
+
+    // Получение текущего времени с RTC
+    DateTime now = rtc.now(); // Получение текущего времени от RTC
 
     // Вывод информации на дисплей
-    lcd.clear();               // Очистка дисплея
-    lcd.setCursor(0, 0);       // Установка курсора в начало первой строки
-    lcd.print("Temp: ");       // Вывод текста "Temp: "
-    lcd.print(temperature);    // Вывод температуры
-    lcd.print(" C");           // Вывод единицы измерения (градусы Цельсия)
+    lcd.clear();                     // Очистка дисплея
+    lcd.setCursor(0, 0);            // Установка курсора в начало первой строки
+    lcd.print("Temp: ");            // Вывод текста "Temp: "
+    lcd.print(temperature);         // Вывод температуры
+    lcd.print(" C");                // Вывод единицы измерения (градусы Цельсия)
 
-    lcd.setCursor(0, 1);       // Установка курсора в начало второй строки
-    lcd.print("Hum: ");        // Вывод текста "Hum: "
-    lcd.print(humidity);       // Вывод влажности
-    lcd.print("%");            // Вывод единицы измерения (проценты)
+    lcd.setCursor(0, 1);            // Установка курсора в начало второй строки
+    lcd.print("Hum: ");             // Вывод текста "Hum: "
+    lcd.print(humidity);            // Вывод влажности
+    lcd.print("%");                 // Вывод единицы измерения (проценты)
 
-    lcd.setCursor(9, 1);       // Установка курсора для вывода времени
-    lcd.print(now.hour());     // Вывод часов
-    lcd.print(':');            // Вывод разделителя ":"
-    lcd.print(now.minute());   // Вывод минут
+    lcd.setCursor(9, 1);            // Установка курсора для вывода времени
+    lcd.print(now.hour());          // Вывод часов
+    lcd.print(':');                 // Вывод разделителя ":"
+    lcd.print(now.minute());        // Вывод минут
 
     // Вывод информации в монитор порта
     Serial.print("LDR Value: ");
-    Serial.println(ldrValue);      // Вывод значения фоторезистора
+    Serial.println(ldrValue);       // Вывод значения фоторезистора
     Serial.print("Temperature: ");
-    Serial.print(temperature);     // Вывод температуры
+    Serial.print(temperature);      // Вывод температуры
     Serial.println(" *C");
     Serial.print("Humidity: ");
-    Serial.print(humidity);        // Вывод влажности
+    Serial.print(humidity);         // Вывод влажности
     Serial.println(" %");
+    Serial.print("Soil Moisture: ");
+    Serial.print(soilMoistureValue); // Вывод влажности почвы
+    Serial.println();
     Serial.print("Current Time: ");
-    Serial.print(now.hour());      // Вывод текущего времени (часы)
+    Serial.print(now.hour());       // Вывод текущего времени (часы)
     Serial.print(':');
-    Serial.print(now.minute());    // Вывод текущего времени (минуты)
+    Serial.print(now.minute());     // Вывод текущего времени (минуты)
     Serial.print(':');
-    Serial.print(now.second());    // Вывод текущего времени (секунды)
+    Serial.print(now.second());     // Вывод текущего времени (секунды)
     Serial.println();
     Serial.println("--------------------");
   } else {
