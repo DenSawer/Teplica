@@ -19,7 +19,10 @@ void loop() {
     else digitalWrite(heating, LOW);           // Иначе выключаем светодиод на пине 12
     if (isHot) digitalWrite(cooling, HIGH);    // Если слишком жарко, включаем светодиод на пине 11
     else digitalWrite(cooling, LOW);           // Иначе выключаем светодиод на пине 11
+  
+    lcd.setCursor(0, 0);
+    lcd.print("Nikita pisun");
   }
 
-  LEDdisplay();  // вывод на дисплей и сериал монитор
+  //LEDdisplay();  // вывод на дисплей и сериал монитор
 }
