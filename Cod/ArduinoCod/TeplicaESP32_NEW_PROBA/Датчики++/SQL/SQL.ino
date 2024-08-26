@@ -11,7 +11,7 @@ DHT dht(DHTPIN, DHTTYPE);  // Создаем объект для работы с
 
 
 // Настройки SD карты
-#define SD_CS 5  // Пин чип селект для SD карты
+#define SD_CS 15  // Пин чип селект для SD карты
 
 // Объекты и переменные для работы с SQLite
 sqlite3 *db;         // Указатель на объект базы данных SQLite
@@ -138,6 +138,9 @@ void setup() {
 }
 
 void loop() {
+  Serial.print("Памяти занято: ");
+  Serial.print(ESP.getFlashChipSize());
+
   // Чтение данных с датчиков
   float temperature = dht.readTemperature();  // Чтение температуры с DHT датчика
   float humidity = dht.readHumidity();        // Чтение влажности с DHT датчика
@@ -152,7 +155,7 @@ void loop() {
   insertData(temperature, humidity, lightLevel);
 
   // Удаление данных старше 6 месяцев (параметр можно изменить)
-  deleteOldData(6);
+  //deleteOldData(6);
 
   // Чтение данных из таблицы и вывод в последовательный порт
   readData();

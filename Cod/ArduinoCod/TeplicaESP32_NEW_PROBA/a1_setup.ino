@@ -1,9 +1,10 @@
 void setup() {
+
   Serial.begin(115200);  // Инициализация серийного порта со скоростью 115200 бод
 
   Serial.println("Начало инициализации системы...");
 
-  setup_SD(); //РЕСТРУКТИРИРОВАТЬ ВСЕ ПОХОЖИМ ОБРАЗОМ
+  setup_SD();  //РЕСТРУКТИРИРОВАТЬ ВСЕ ПОХОЖИМ ОБРАЗОМ
 
   // Инициализация пинов
   pinMode(LDR_PIN, INPUT);            // Пин для фоторезистора в режиме входа
@@ -19,8 +20,8 @@ void setup() {
   // Инициализация LCD и 7seg disp
   disp.clear();
   disp.brightness(7);  // яркость, 0 - 7 (минимум - максимум)
-  lcd.init();       // Инициализация LCD дисплея
-  lcd.backlight();  // Включение подсветки LCD дисплея
+  lcd.init();          // Инициализация LCD дисплея
+  lcd.backlight();     // Включение подсветки LCD дисплея
   lcd.clear();
   Serial.println("LCD: инициализация завершена.");  // Сообщение об успешной инициализации
 
@@ -77,34 +78,3 @@ void setup() {
   Serial.println("Инициализация системы завершена.");
 }
 
-void setup_SD() {
-  delay(5000);
-  // Инициализация HSPI интерфейса
-  hspi.begin(HSPI_CLK, HSPI_MISO, HSPI_MOSI, HSPI_CS);
-
-  // Частота работы контроллера
-  if (!SD.begin(HSPI_CS, hspi, 8000000)) {
-    Serial.println("Ошибка монтирования карты");
-    return;
-  }
-
-  uint8_t cardType = SD.cardType();
-  if (cardType == CARD_NONE) {
-    Serial.println("SD карта не обнаружена");
-    return;
-  }
-
-  Serial.print("Тип SD карты: ");
-  if (cardType == CARD_MMC) {
-    Serial.println("MMC");
-  } else if (cardType == CARD_SD) {
-    Serial.println("SDSC");
-  } else if (cardType == CARD_SDHC) {
-    Serial.println("SDHC");
-  } else {
-    Serial.println("НЕИЗВЕСТНО");
-  }
-
-  uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-  Serial.printf("Размер SD карты: %lluMB\n", cardSize);
-}

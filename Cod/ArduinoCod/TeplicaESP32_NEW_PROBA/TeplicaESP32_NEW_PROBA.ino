@@ -12,6 +12,7 @@
 #include <RTClib.h>             // RTC (часы реального времени)
 #include <SPI.h>                // SPI (Для Ethernet, SD)
 #include <SD.h>                 // SD
+#include <FS.h>
 #include <EthernetENC.h>        // Ethernet модулем ENC28J60
 
 
@@ -23,10 +24,12 @@
 #define COOL_PIN 33           // Пин для управления охлаждением (синий светодиод)
 #define SOIL_MOISTURE_PIN 35  // Пин для подключения датчика влажности почвы HW-080
 #define ETHERNET_CS_PIN 5     // Пин CS для Ethernet
-#define HSPI_MISO 12          // Определение пинов для HSPI
-#define HSPI_MOSI 13
-#define HSPI_CLK 14
-#define HSPI_CS 15
+#define HSPI_MISO 12          // Определение пинов для HSPI для SD
+#define HSPI_MOSI 13          // для SD
+#define HSPI_CLK 14           // для SD
+#define HSPI_CS 15            // для SD
+#define CLK 21                // CLK для 7SEG DISP
+#define DIO 22                // DIO для 7SEG DISP
 
 // -------------------------DHT (датчик микроклимата)---------------------------------
 #define DHTTYPE DHT22  // Указываем используемый DHT
@@ -76,3 +79,44 @@ bool isCorF = false;  // выбор градус Цельсия(false) или Ф
 bool isDark;          // темно
 bool isCool;          // холодно
 bool isHeat;          // жарко
+
+
+void setup_SD() {
+  delay(5000);
+
+  // Инициализация HSPI интерфейса
+  hspi.begin(HSPI_CLK, HSPI_MISO, HSPI_MOSI, HSPI_CS);
+
+  // Частота работы контроллера
+  if (!SD.begin(HSPI_CS, hspi, 8000000)) {
+    Serial.println("Ошибка монтирования карты");
+    return;
+  }
+
+  uint8_t cardType = SD.cardType();
+  if (cardType == CARD_NONE) {
+    Serial.println("SD карта не обнаружена");
+    return;
+  }
+
+  Serial.print("Тип SD карты: ");
+  if (cardType == CARD_MMC) {
+    Serial.println("MMC");
+  } else if (cardType == CARD_SD) {
+    Serial.println("SDSC");
+  } else if (cardType == CARD_SDHC) {
+    Serial.println("SDHC");
+  } else {
+    Serial.println("НЕИЗВЕСТНО");
+  }
+
+  uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+  Serial.printf("Размер SD карты: %lluMB\n", cardSize);
+}
+
+
+
+
+
+
+

@@ -12,7 +12,7 @@ SPIClass hspi(HSPI);
 
 void setup() {
   Serial.begin(115200);
-delay(5000);
+  delay(5000);
   // Инициализация HSPI интерфейса
   hspi.begin(HSPI_CLK, HSPI_MISO, HSPI_MOSI, HSPI_CS);
 
@@ -52,7 +52,7 @@ void loop() {
   delay(1000);
 }
 
-void writeFile(fs::FS &fs, const char * path, const char * message) {
+void writeFile(fs::FS &fs, const char *path, const char *message) {
   Serial.printf("Запись в файл: %s\n", path);
 
   File file = fs.open(path, FILE_WRITE);
@@ -68,7 +68,7 @@ void writeFile(fs::FS &fs, const char * path, const char * message) {
   file.close();
 }
 
-void readFile(fs::FS &fs, const char * path) {
+void readFile(fs::FS &fs, const char *path) {
   Serial.printf("Чтение файла: %s\n", path);
 
   File file = fs.open(path);

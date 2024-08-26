@@ -3,6 +3,7 @@
   writeFile(SD, "/hello.txt", "Привет, Мир!\n");
   readFile(SD, "/hello.txt");
 */
+
 void writeFile(fs::FS &fs, const char *path, const char *message) {
   Serial.printf("Запись в файл: %s\n", path);
 
