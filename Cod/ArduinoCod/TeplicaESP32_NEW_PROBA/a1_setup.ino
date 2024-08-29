@@ -39,6 +39,8 @@ void setup() {
   }
   Serial.println("RTC: инициализация завершена.");  // Сообщение об успешной инициализации
 
+  openSQL();
+
   // Инициализация Ethernet
   Serial.println("Начало инициализации Ethernet...");
   Ethernet.init(ETHERNET_CS_PIN);  // Настройка для MKR ETH Shield (используется CS-пин 5)
@@ -77,4 +79,3 @@ void setup() {
   // Сообщение о завершении инициализации системы
   Serial.println("Инициализация системы завершена.");
 }
-

@@ -12,7 +12,7 @@
 #include <RTClib.h>             // RTC (часы реального времени)
 #include <SPI.h>                // SPI (Для Ethernet, SD)
 #include <SD.h>                 // SD
-#include <FS.h>
+#include <sqlite3.h>            // SQL (База данных)
 #include <EthernetENC.h>        // Ethernet модулем ENC28J60
 
 
@@ -50,6 +50,9 @@ DateTime now;  // переменая времени сейчас
 //----------------------------------SD-----------------------------------
 SPIClass hspi(HSPI);  // Объект HSPI
 
+// -----------------------------SQL--------------------------
+sqlite3 *db;
+
 // ------------------------Ethernet ENC28J60---------------------
 uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };  // MAC адрес устройства
 IPAddress ip(192, 168, 1, 28);                           // Статический IP адрес
@@ -65,7 +68,7 @@ bool printWebData = true;         // Флаг для вывода данных �
 
 //------------------------------ПЕРЕМЕННЫЕ----------------------------
 
-uint16_t ldrValue;  // свет
+uint16_t lightLevel;  // уровень освещенности
 
 struct {
   uint8_t humidity;   // влажность
@@ -93,30 +96,8 @@ void setup_SD() {
     return;
   }
 
-  uint8_t cardType = SD.cardType();
-  if (cardType == CARD_NONE) {
+  if (SD.cardType() == CARD_NONE) {
     Serial.println("SD карта не обнаружена");
     return;
   }
-
-  Serial.print("Тип SD карты: ");
-  if (cardType == CARD_MMC) {
-    Serial.println("MMC");
-  } else if (cardType == CARD_SD) {
-    Serial.println("SDSC");
-  } else if (cardType == CARD_SDHC) {
-    Serial.println("SDHC");
-  } else {
-    Serial.println("НЕИЗВЕСТНО");
-  }
-
-  uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-  Serial.printf("Размер SD карты: %lluMB\n", cardSize);
 }
-
-
-
-
-
-
-

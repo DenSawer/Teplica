@@ -1,7 +1,7 @@
 void SerialMonitor() {
   // --------------------Вывод информации в монитор порта-------------------------
   Serial.print("LDR Value: ");
-  Serial.println(ldrValue);  // Вывод значения фоторезистора
+  Serial.println(lightLevel);  // Вывод значения фоторезистора
   Serial.print("Temperature: ");
   Serial.print(microclimate.temperature);  // Вывод температуры
   Serial.println(" *C");

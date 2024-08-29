@@ -1,6 +1,6 @@
 void loop() {
   // Чтение показаний с фоторезистора
-  ldrValue = analogRead(LDR_PIN);  // Чтение аналогового значения с пина фоторезистора
+  lightLevel = analogRead(LDR_PIN);  // Чтение аналогового значения с пина фоторезистора
 
   // Чтение данных с датчика влажности почвы
   soilMoistureValue = analogRead(SOIL_MOISTURE_PIN);  // Чтение аналогового значения с пина датчика влажности почвы
@@ -12,7 +12,7 @@ void loop() {
   // Получение текущего времени с RTC
   now = rtc.now();
 
-  isDark = ldrValue > 1500;                  // темно если меньше 1500 // максимальное 4096
+  isDark = lightLevel > 1500;                  // темно если меньше 1500 // максимальное 4096
   isCool = microclimate.temperature < 28.0;  // холодно если меньше 23
   isHeat = microclimate.temperature > 30.0;  // жарко если больше 24
 
@@ -41,6 +41,7 @@ void loop() {
 
   LEDdisplay();
   SerialMonitor();
+  readSQL();
   ServerRequest();
 
   delay(2000);
