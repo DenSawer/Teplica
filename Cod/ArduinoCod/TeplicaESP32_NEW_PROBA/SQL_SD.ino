@@ -1,6 +1,6 @@
 void openSQL() {
   // Открытие базы данных на SD-карте
-  if (sqlite3_open("/sd/database/data.db", &db) == SQLITE_OK) {
+  if (sqlite3_open("/sd/data.db", &db) == SQLITE_OK) {
     Serial.println("Подключение к базе данных успешно");
 
     // Создание таблицы для хранения данных
@@ -43,7 +43,7 @@ void readSQL() {
   delay(10000);  // Записываем данные каждые 10 секунд
 }
 
-void closeDB() {
+void closeSQL() {
   // Закрытие базы данных при завершении работы
   if (db) {
     sqlite3_close(db);
