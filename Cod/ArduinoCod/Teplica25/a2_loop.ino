@@ -1,4 +1,8 @@
 void loop() {
+  lcd.setCursor(0, 0);
+  lcd.print("str");
+  lcd.print("Temp: ");                  // Вывод текста "Temp: "
+  lcd.print(microclimate.temperature);  // Вывод температуры
   // Чтение показаний с фоторезистора
   lightLevel = analogRead(LDR_PIN);  // Чтение аналогового значения с пина фоторезистора
 
@@ -12,7 +16,11 @@ void loop() {
   // Получение текущего времени с RTC
   now = rtc.now();
 
-  isDark = lightLevel > 1500;                  // темно если меньше 1500 // максимальное 4096
+  lcd.setCursor(0, 1);               // Установка курсора в начало второй строки
+  lcd.print("Hum: ");                // Вывод текста "Hum: "
+  lcd.print(microclimate.humidity);  // Вывод влажности
+
+  isDark = lightLevel > 1500;                // темно если меньше 1500 // максимальное 4096
   isCool = microclimate.temperature < 28.0;  // холодно если меньше 23
   isHeat = microclimate.temperature > 30.0;  // жарко если больше 24
 
@@ -21,6 +29,10 @@ void loop() {
   // Включение или выключение лампы на основе показаний фоторезистора
   if (isDark) digitalWrite(LAMP_PIN, HIGH);  // Включить лампу
   else digitalWrite(LAMP_PIN, LOW);          // Выключить лампу
+
+
+  lcd.print(':');            
+  lcd2digits(now.second());  // Вывод минут
 
   // Проверка, удалось ли прочитать данные с датчика DHT22
   if (!isnan(microclimate.humidity) && !isnan(microclimate.temperature)) {

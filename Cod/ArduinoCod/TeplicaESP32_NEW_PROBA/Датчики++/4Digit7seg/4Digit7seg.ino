@@ -1,16 +1,22 @@
-#include <TM1637Display.h>
+#include <GyverTM1637.h>
 
 // Укажите пины для подключения CLK и DIO
 #define CLK 21
 #define DIO 22
 
-TM1637Display display(CLK, DIO);
+GyverTM1637 disp(CLK, DIO);
 
 void setup() {
-  display.setBrightness(0x0f);  // Установите яркость (максимум)
-  display.showNumberDec(1234);  // Показать число 1234
+  disp.brightness(7);
+  disp.displayInt(8888);
+  disp.clear();
 }
 
 void loop() {
-  // Можно добавить код для обновления дисплея или выполнения других задач
+  for (int i = 0; i <= 9; i++) {
+    disp.displayByte(i,i,i,i);        // Вывод числа для проверки
+    delay(200);
+    disp.clear();
+    delay(1000);
+  }
 }

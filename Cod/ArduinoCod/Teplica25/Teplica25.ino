@@ -1,6 +1,6 @@
 /*
 Проект: Автоматизированная система измерения параметров теплицы
-Версия: ESP32_0.1
+Версия: ESP32_0.2 20.01.25
 Создатели: Крючков Д.Д., Радченко Н.О.
 Руководители: Дрокина Т.М., Захлестов А.М.
 */
@@ -24,7 +24,7 @@
 #define COOL_PIN 33           // Пин для управления охлаждением (синий светодиод)
 #define SOIL_MOISTURE_PIN 35  // Пин для подключения датчика влажности почвы HW-080
 #define ETHERNET_CS_PIN 5     // Пин CS для Ethernet
-#define HSPI_MISO 19          // Определение пинов для HSPI для SD
+#define HSPI_MISO 19          // HSPI для SD
 #define HSPI_MOSI 23          // для SD
 #define HSPI_CLK 18           // для SD
 #define HSPI_CS 4             // для SD
@@ -32,7 +32,8 @@
 #define DIO 22                // DIO для 7SEG DISP
 #define BIPER_PIN 16          // Бипер для оповещение системы
 
-uint8_t allDevice = 7;  // Все датчики
+//Подсчет устройств для инициализации
+#define allDevice 7.0  // Все датчики
 uint8_t device = 0;
 
 //!-----------------------------Дисплеи-------------------------------------!
@@ -89,7 +90,7 @@ DHT dht(DHT_PIN, DHTTYPE);
 
 //!-------------------------Датчики освещённости---------------------------------!
 
-bool isDark;          // темно
+bool isDark;  // темно
 
 //---------------Фоторезистор--------------
 uint16_t lightLevel;  // уровень освещенности
@@ -101,24 +102,4 @@ uint16_t soilMoistureValue;  // уровень влажности
 
 
 
-void setup_SD() {
-  delay(5000);
 
-  // Инициализация HSPI интерфейса
-  hspi.begin(HSPI_CLK, HSPI_MISO, HSPI_MOSI, HSPI_CS);
-
-  // Частота работы контроллера
-  if (!SD.begin(HSPI_CS, hspi, 8000000)) {
-    Serial.println("ОШИБКА монтирования карты памяти");
-    //showLoadingProgress("SD", false);
-    return;
-  }
-  if (SD.cardType() == CARD_NONE) {
-    Serial.println("SD карта не обнаружена");
-    // showLoadingProgress("SD", false);
-    return;
-  } else {
-    Serial.print("SD карта на месте");
-    //showLoadingProgress("SD", true);
-  }
-}

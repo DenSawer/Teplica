@@ -4,6 +4,7 @@ void LEDdisplay() {
   disp.displayClockTwist(now.hour(), now.minute(), 35);
   // ----------------------Вывод информации на LCD дисплей--------------------------
   //lcd.clear();                          // Очистка дисплея
+  Serial.print("fffffffffffffffffff");
   lcd.setCursor(0, 0);                  // Установка курсора в начало первой строки
   lcd.print("Temp: ");                  // Вывод текста "Temp: "
   lcd.print(microclimate.temperature);  // Вывод температуры
