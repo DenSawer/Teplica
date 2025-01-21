@@ -41,8 +41,8 @@ void loop() {
 
   LEDdisplay();
   SerialMonitor();
-  readSQL();
-  ServerRequest();
+  //readSQL();
+  //ServerRequest();
 
   delay(2000);
 }
