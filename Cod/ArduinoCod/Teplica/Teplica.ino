@@ -8,7 +8,6 @@
 #include <DHT.h>                // DHT
 #include <Wire.h>               // для шины I2C
 #include "LiquidCrystal_I2C.h"  // LCD по I2C
-#include <GyverTM1637.h>        // для 4 digital display
 #include <RTClib.h>             // RTC (часы реального времени)
 #include <SPI.h>                // SPI (Для Ethernet, SD)
 #include <SD.h>                 // SD
