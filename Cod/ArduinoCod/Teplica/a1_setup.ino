@@ -2,84 +2,71 @@ void setup() {
 
   Serial.begin(115200);  // Инициализация серийного порта со скоростью 115200 бод
 
-  //---------------------------------Инициализация пинов----------------------------------------
-
-  pinMode(HEAT_PIN, OUTPUT);          // Пин для красного светодиода в режиме выхода
-  pinMode(COOL_PIN, OUTPUT);          // Пин для синего светодиода в режиме выхода
-  pinMode(SOIL_MOISTURE_PIN, INPUT);  // Пин для датчика влажности почвы в режиме входа
-
   //--------------------------------Инициализация система---------------------------------------
   Serial.println("Начало инициализации системы...");
-  setup_DP();        // Инициализация LCD и 7seg disp
-  setup_SD();        // Инициализация SD
-  setup_RTC();       // Инициализация RTC
-  setup_Ethernet();  // Инициализация Ethernet
-  setup_DHT();       // Инициализация DHT22
-  setup_light();     // Инициализация Датчиков освещённости
+  setup_DP();  // Инициализация LCD и 7seg disp
+  //setup_SD();        // Инициализация SD
+  setup_RTC();            // Инициализация RTC
+  setup_Ethernet();       // Инициализация Ethernet
+  setup_DHT();            // Инициализация DHT22
+  setup_light();          // Инициализация Датчиков освещённости
+  setup_soil_moisture();  // Инициализация Датчиков влажности почвы
   //openSQL();         // Обработка SQL
 
   // Сообщение о завершении инициализации системы
   Serial.println("Инициализация системы завершена.");
 }
 
-void showLoadingProgress(const char *str, bool yes_no = false) {
+void showLoadingprogressBar(const char *str, bool yes_no = false) {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(str);
   lcd.print(' ');
-  if (yes_no) lcd.write(char(0));  // ✔
-  else {
-    lcd.write(char(0x78));  // ✖
-    tone(BIPER_PIN, 1000, 500);
+  Serial.print(str);
+  Serial.print(' ');
+  if (yes_no) {
+    lcd.write(char(0));  // ✔
+    Serial.println("Инициализация завершена.");
+  } else {
+    Serial.println("Отсутствует!");
+    lcd.write(char(0x78));       // ✖
+    tone(BIPER_PIN, 1000, 500);  // Звуковой сигнал ошибки
     tone(BIPER_PIN, 0, 200);
     tone(BIPER_PIN, 1000, 500);
     delay(3500);
   }
   device++;
-  float progress = (device / 5.0 /*float(allDevice)*/) * 100.0;
-  uint8_t filledBlocks = progress / 6.25;
+  uint8_t progressBar = (device * LCD_COLUMN) / allDevice;
   lcd.setCursor(0, 1);
-  for (int i = 0; i < filledBlocks; i++) {
+  for (uint8_t i = 0; i < progressBar; i++) {
     lcd.print(char(255));  // Полный блок █
   }
   delay(500);
-  if (filledBlocks == 16) {
+  if (progressBar == LCD_COLUMN) {
     lcd.clear();
     return;
   }
 }
 
 void setup_DP() {
-
-  // Проверка связи с TM1637, морганием дисплея
-  /*for (int brightness = 0; brightness <= 7; brightness++) {
-    disp.brightness(brightness);  // Изменение яркости
-    disp.displayInt(1234);        // Вывод числа для проверки
-    delay(200);
-    disp.clear();
-    delay(200);
-  }*/
-  disp.brightness(7);
-  disp.displayInt(1234);
-
   // Проверка наличия и автоматическое определение LCD дисплея
   Wire.begin();
   if (!Wire.requestFrom(LCD_ADDRESS, 1)) {
-    Serial.println("Ошибка: LCD дисплей не найден. Проверьте подключение.");
+    showLoadingprogressBar("Display", false);
     delay(1000);
     return;
   }
 
-  byte customChar[] = { 0x00, 0x00, 0x01, 0x02, 0x14, 0x08, 0x00, 0x00 };
-  lcd.createChar(0, customChar);
+  byte galochkaChar[] = { 0x00, 0x00, 0x01, 0x02, 0x14, 0x08, 0x00, 0x00 };
+  lcd.createChar(0, galochkaChar);
+  byte gradusCChar[] = { 0x1c, 0x14, 0x1c, 0x03, 0x04, 0x04, 0x04, 0x03 };
+  lcd.createChar(1, gradusCChar);
 
   lcd.init();
   lcd.backlight();
   lcd.clear();
-  disp.clear();
   delay(200);
-  Serial.println("LCD: Инициализация завершена.");
-  showLoadingProgress("Display", true);
+  showLoadingprogressBar("Display", true);
 }
 
 void setup_SD() {
@@ -91,33 +78,31 @@ void setup_SD() {
   // Частота работы контроллера
   if (!SD.begin(HSPI_CS, hspi, 8000000)) {
     Serial.println("ОШИБКА монтирования карты памяти");
-    //showLoadingProgress("SD", false);
+    showLoadingprogressBar("SD", true);
     return;
   }
   if (SD.cardType() == CARD_NONE) {
     Serial.println("SD карта не обнаружена");
-    showLoadingProgress("SD", false);
+    showLoadingprogressBar("SD", false);
     return;
   } else {
     Serial.print("SD карта на месте");
-    showLoadingProgress("SD", true);
+    showLoadingprogressBar("SD", true);
   }
 }
 
 void setup_RTC() {
-  if (!rtc.begin()) {                     // Проверка успешной инициализации RTC
-    Serial.println("RTC не обнаружен!");  // Сообщение об ошибке, если RTC не обнаружен
-    showLoadingProgress("RTC", false);
+  if (!rtc.begin()) {  // Проверка успешной инициализации RTC
+    showLoadingprogressBar("RTC", false);
     return;
   }
   // Установка времени, если RTC не настроен
-  if (!rtc.isrunning()) {                                                 // Проверка, работает ли RTC
-    Serial.println("RTC не настроен, установка времени по компьютеру.");  // Сообщение об установке времени
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));                       // Установка времени по дате и времени компиляции
-    showLoadingProgress("RTC time", true);
+  if (!rtc.isrunning()) {                            // Проверка, работает ли RTC
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));  // Установка времени по дате и времени компиляции
+    showLoadingprogressBar("RTC time", true);
+    Serial.println("Установка времени по компьютеру.");  // Сообщение об установке времени
   } else {
-    Serial.println("RTC: инициализация завершена.");
-    showLoadingProgress("RTC", true);
+    showLoadingprogressBar("RTC", true);
   }
 }
 
@@ -162,33 +147,40 @@ void setup_Ethernet() {
   // Инициализация Ethernet
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Ошибка инициализации Ethernet. Проверьте подключение.");
-    showLoadingProgress("Ethernet", false);
+    showLoadingprogressBar("Ethernet", false);
   }
 
   Serial.print("IP-адрес: ");
   Serial.println(Ethernet.localIP());*/
 
-  showLoadingProgress("Ethernet", true);
+  showLoadingprogressBar("Ethernet", true);
 }
 
 void setup_DHT() {
+  pinMode(HEAT_PIN, OUTPUT);  // Пин для красного светодиода в режиме выхода
+  pinMode(COOL_PIN, OUTPUT);  // Пин для синего светодиода в режиме выхода
+
   dht.begin();                                       // Запуск работы с датчиком DHT
   microclimate.temperature = dht.readTemperature();  // Чтение температуры
   microclimate.humidity = dht.readHumidity();        // Чтение влажности
 
   if (isnan(microclimate.temperature) || isnan(microclimate.humidity)) {
-    Serial.println("Ошибка: датчик DHT не подключен или неисправен!");  // Ошибка с DHT22
-    showLoadingProgress("DHT", false);
-    return;
+    showLoadingprogressBar("DHT", false);
   } else {
-    Serial.println("Датчик DHT успешно инициализирован.");
-    showLoadingProgress("DHT", true);
+    showLoadingprogressBar("DHT", true);
   }
 }
 
 void setup_light() {
-  pinMode(LDR_PIN, INPUT);            // Пин для фоторезистора в режиме входа
-  pinMode(LAMP_PIN, OUTPUT);          // Пин для лампы в режиме выхода
+  pinMode(LDR_PIN, INPUT);    // Пин для фоторезистора в режиме входа
+  pinMode(LAMP_PIN, OUTPUT);  // Пин для лампы в режиме выхода
 
-  digitalWrite(LAMP_PIN, LOW); // Выключаем 
+  digitalWrite(LAMP_PIN, LOW);  // Выключаем
+  showLoadingprogressBar("Light", true);
+}
+
+void setup_soil_moisture() {
+  pinMode(SOIL_MOISTURE_PIN, INPUT);  // Пин для датчика влажности почвы в режиме входа
+
+  showLoadingprogressBar("Soil moisture", true);
 }

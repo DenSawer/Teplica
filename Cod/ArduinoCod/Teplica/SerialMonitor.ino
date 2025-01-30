@@ -1,6 +1,4 @@
 void SerialMonitor() {
-  Serial.flush();
-  delay(200);
   // --------------------Вывод информации в монитор порта-------------------------
   Serial.print("LDR Value: ");
   Serial.println(lightLevel);  // Вывод значения фоторезистора
