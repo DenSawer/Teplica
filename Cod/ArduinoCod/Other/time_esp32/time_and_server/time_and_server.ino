@@ -14,8 +14,8 @@ LiquidCrystal_I2C lcd(LCD_ADDRESS, LCD_COLUMN, LCD_ROW);
 
 const char* ssid = "POCO X6 5G";
 const char* password = "123456789";
-uint8_t gUTC = 3;
-#define NTP_SERVER "pool.ntp.org"
+long gmtOffset_sec = 10800;
+int daylightOffset_sec = 0;
 
 time_t lastSyncTime = 0;
 const int timeSyncInterval = 3600;  // Интервал синхронизации времени в секундах
@@ -23,14 +23,14 @@ const int timeSyncInterval = 3600;  // Интервал синхронизаци
 // Подключение к WiFi
 void setupWiFi() {
   WiFi.begin(ssid, password);
-  for (uint8_t i = 0; i < 20 && WiFi.status() != WL_CONNECTED; i++) {
+  for (int i = 0; i < 20 && WiFi.status() != WL_CONNECTED; i++) {
     delay(1000);
   }
 }
 
 // Настройка времени через NTP
 bool setupTimeNTP() {
-  configTime(3600*gUTC, 0, NTP_SERVER);// часовой пояс, летнее время, нтп сервер
+  configTime(gmtOffset_sec, daylightOffset_sec, "pool.ntp.org");
   const time_t currentTime = time(nullptr);
   // Если время корректное (порог можно заменить на нужное значение)
   if (currentTime > 1670000000UL) {
@@ -75,28 +75,12 @@ bool getTimeFromSIM() {
 }
 
 // Обновление локального времени (проверка, пора ли обновлять)
-/*void updateLocalTime() {
-  const time_t currentTime = time(nullptr);
-  if (currentTime - lastSyncTime < timeSyncInterval) return;  // Проверка прошло ли уже время обновиться
-  if (getTimeFromSIM()) return;                                 // Обноление через сим
-  if (setupTimeNTP()) return;                                   // Обноление через нтп, то есть интернет
-  lastSyncTime = currentTime;                                 // Если обе попытки неудачны, обновляем lastSyncTime с локального времени
-}*/
-
 void updateLocalTime() {
-  while (time(nullptr) < 1670000000UL) {
-    static uint32_t lastAttemptTime = 0; // Создается только в этом блоке и исчезает после установки времени
-    if (millis() - lastAttemptTime >= 5000) {  
-      lastAttemptTime = millis();
-      if (getTimeFromSIM() || setupTimeNTP()) return; // Если удалось синхронизировать, выходим
-    }
-  }
-
   const time_t currentTime = time(nullptr);
-  if (currentTime - lastSyncTime < timeSyncInterval) return; // Проверка прошло ли уже время обновиться
-  if (getTimeFromSIM()) return;  // Обновление через SIM
-  if (setupTimeNTP()) return;  // Обновление через NTP
-  lastSyncTime = currentTime;  // Если обе попытки неудачны, обновляем lastSyncTime
+  if (time(nullptr) - lastSyncTime < timeSyncInterval) return; // Проверка прошло ли уже время обновиться
+  if (getTimeFromSIM()) return; // Обноление через сим
+  if (setupTimeNTP()) return; // Обноление через нтп, то есть интернет 
+  lastSyncTime = time(nullptr);// Если обе попытки неудачны, обновляем lastSyncTime с локального времени
 }
 
 // Вывод локального времени на LCD дисплей

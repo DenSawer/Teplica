@@ -27,8 +27,6 @@
 #define HSPI_MOSI 23          // для SD
 #define HSPI_CLK 18           // для SD
 #define HSPI_CS 4             // для SD
-#define CLK 21                // CLK для 7SEG DISP
-#define DIO 22                // DIO для 7SEG DISP
 #define BIPER_PIN 26          // Бипер для оповещение системы
 #define MODEM_RX 16           // Пины подключения к SIM800L
 #define MODEM_TX 17
