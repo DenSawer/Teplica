@@ -1,25 +1,23 @@
 void setup() {
 
-  Serial.begin(115200);                                // Инициализация USB порта со скоростью 115200 бод
-  sim800.begin(9600, SERIAL_8N1, MODEM_RX, MODEM_TX);  // Инициализация SIM порта со скоростью 9600 бод
+  Serial.begin(115200);  // Инициализация серийного порта со скоростью 115200 бод
 
   //--------------------------------Инициализация система---------------------------------------
   Serial.println("Начало инициализации системы...");
-  initLCD();  // Инициализация LCD
-  //initSD();          // Инициализация SD
-  initEthernet();      // Инициализация Ethernet
-  //connectWiFi();       // Первичное подключение WiFi
-  initSIM800L();       // Инициализация SIM800L
-  initDHT();           // Инициализация DHT22
-  initLight();         // Инициализация Датчиков освещённости
-  initSoilMoisture();  // Инициализация Датчиков влажности почвы
+  setup_DP();  // Инициализация LCD и 7seg disp
+  //setup_SD();        // Инициализация SD
+  setup_RTC();            // Инициализация RTC
+  setup_Ethernet();       // Инициализация Ethernet
+  setup_DHT();            // Инициализация DHT22
+  setup_light();          // Инициализация Датчиков освещённости
+  setup_soil_moisture();  // Инициализация Датчиков влажности почвы
   //openSQL();         // Обработка SQL
 
   // Сообщение о завершении инициализации системы
   Serial.println("Инициализация системы завершена.");
 }
 
-void showLoadingProgressBar(const char *str, bool yes_no = false) {
+void showLoadingprogressBar(const char *str, bool yes_no = false) {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(str);
@@ -38,23 +36,23 @@ void showLoadingProgressBar(const char *str, bool yes_no = false) {
     delay(3500);
   }
   device++;
-  uint8_t progressBar = (device * 16) / allDevice;
+  uint8_t progressBar = (device * LCD_COLUMN) / allDevice;
   lcd.setCursor(0, 1);
   for (uint8_t i = 0; i < progressBar; i++) {
     lcd.print(char(255));  // Полный блок █
   }
   delay(500);
-  if (progressBar == 16) {
+  if (progressBar == LCD_COLUMN) {
     lcd.clear();
     return;
   }
 }
 
-void initLCD() {
+void setup_DP() {
   // Проверка наличия и автоматическое определение LCD дисплея
   Wire.begin();
   if (!Wire.requestFrom(LCD_ADDRESS, 1)) {
-    showLoadingProgressBar("Display", false);
+    showLoadingprogressBar("Display", false);
     delay(1000);
     return;
   }
@@ -68,10 +66,10 @@ void initLCD() {
   lcd.backlight();
   lcd.clear();
   delay(200);
-  showLoadingProgressBar("Display", true);
+  showLoadingprogressBar("Display", true);
 }
 
-void initSD() {
+void setup_SD() {
   delay(1000);
 
   // Инициализация HSPI интерфейса
@@ -80,20 +78,35 @@ void initSD() {
   // Частота работы контроллера
   if (!SD.begin(SD_CS_PIN, hspi, 8000000)) {
     Serial.println("ОШИБКА монтирования карты памяти");
-    showLoadingProgressBar("SD", true);
+    showLoadingprogressBar("SD", true);
     return;
   }
   if (SD.cardType() == CARD_NONE) {
     Serial.println("SD карта не обнаружена");
-    showLoadingProgressBar("SD", false);
+    showLoadingprogressBar("SD", false);
     return;
   } else {
     Serial.print("SD карта на месте");
-    showLoadingProgressBar("SD", true);
+    showLoadingprogressBar("SD", true);
   }
 }
 
-void initEthernet() {
+void setup_RTC() {
+  if (!rtc.begin()) {  // Проверка успешной инициализации RTC
+    showLoadingprogressBar("RTC", false);
+    return;
+  }
+  // Установка времени, если RTC не настроен
+  if (!rtc.isrunning()) {                            // Проверка, работает ли RTC
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));  // Установка времени по дате и времени компиляции
+    showLoadingprogressBar("RTC time", true);
+    Serial.println("Установка времени по компьютеру.");  // Сообщение об установке времени
+  } else {
+    showLoadingprogressBar("RTC", true);
+  }
+}
+
+void setup_Ethernet() {
   /*Serial.println("Начало инициализации Ethernet...");
   Ethernet.init(ETHERNET_CS_PIN);  // Настройка для MKR ETH Shield (используется CS-пин 5)
   if (Ethernet.begin(mac) == 0) {  // Если не удалось получить IP через DHCP
@@ -134,16 +147,16 @@ void initEthernet() {
   // Инициализация Ethernet
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Ошибка инициализации Ethernet. Проверьте подключение.");
-    showLoadingProgressBar("Ethernet", false);
+    showLoadingprogressBar("Ethernet", false);
   }
 
   Serial.print("IP-адрес: ");
   Serial.println(Ethernet.localIP());*/
 
-  showLoadingProgressBar("Ethernet", true);
+  showLoadingprogressBar("Ethernet", true);
 }
 
-void initDHT() {
+void setup_DHT() {
   pinMode(HEAT_PIN, OUTPUT);  // Пин для красного светодиода в режиме выхода
   pinMode(COOL_PIN, OUTPUT);  // Пин для синего светодиода в режиме выхода
 
@@ -152,22 +165,22 @@ void initDHT() {
   microclimate.humidity = dht.readHumidity();        // Чтение влажности
 
   if (isnan(microclimate.temperature) || isnan(microclimate.humidity)) {
-    showLoadingProgressBar("DHT", false);
+    showLoadingprogressBar("DHT", false);
   } else {
-    showLoadingProgressBar("DHT", true);
+    showLoadingprogressBar("DHT", true);
   }
 }
 
-void initLight() {
+void setup_light() {
   pinMode(LDR_PIN, INPUT);    // Пин для фоторезистора в режиме входа
   pinMode(LAMP_PIN, OUTPUT);  // Пин для лампы в режиме выхода
 
   digitalWrite(LAMP_PIN, LOW);  // Выключаем
-  showLoadingProgressBar("Light", true);
+  showLoadingprogressBar("Light", true);
 }
 
-void initSoilMoisture() {
+void setup_soil_moisture() {
   pinMode(SOIL_MOISTURE_PIN, INPUT);  // Пин для датчика влажности почвы в режиме входа
 
-  showLoadingProgressBar("Soil moisture", true);
+  showLoadingprogressBar("Soil moisture", true);
 }

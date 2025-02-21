@@ -14,13 +14,11 @@ void LEDdisplay() {
   lcd.print(lightLevel);  // Вывод влажности
   lcd.print(" ");
   lcd.setCursor(7, 1);
-  struct tm timeinfo; // Для отображения времени
-  if (!getLocalTime(&timeinfo)) {
-    lcd.print("error");
-    return;
-  }
-  //lcd.print(&timeinfo, "%Y/%m/%d");
-  lcd.print(&timeinfo, "%H:%M:%S");
+  lcd2digits(now.hour());  // Вывод часов
+  lcd.print(':');
+  lcd2digits(now.minute());  // Вывод минут
+  lcd.print(':');
+  lcd2digits(now.second());  // Вывод минут
 }
 
 void lcd2digits(uint8_t number) {

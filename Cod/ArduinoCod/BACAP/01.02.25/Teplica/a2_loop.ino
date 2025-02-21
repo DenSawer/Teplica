@@ -1,5 +1,6 @@
 void loop() {
-  updateLocalTime();  // Обновление времени
+
+  now = rtc.now();  // Получение текущего времени с RTC
 
   readings_DHT();            // Инициализация DHT22
   readings_light();          // Инициализация Датчиков освещённости

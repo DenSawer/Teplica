@@ -1,25 +1,3 @@
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-#include <WiFi.h>
-#include <time.h>
-
-#define MODEM_RX 16
-#define MODEM_TX 17
-#define LCD_ADDRESS 0x27
-#define LCD_COLUMN 16
-#define LCD_ROW 2
-
-HardwareSerial sim800(1);
-LiquidCrystal_I2C lcd(LCD_ADDRESS, LCD_COLUMN, LCD_ROW);
-
-const char* ssid = "POCO X6 5G";
-const char* password = "123456789";
-uint8_t gUTC = 3;
-#define NTP_SERVER "pool.ntp.org"
-
-time_t lastSyncTime = 0;
-const int timeSyncInterval = 3600;  // Интервал синхронизации времени в секундах
-
 #define TIMEOUT 500  // Таймаут ожидания в миллисекундах
 
 // Функция ожидания ответа от SIM800L
@@ -39,7 +17,8 @@ bool waitForResponse(const char* expected, char* buffer, uint32_t size) {
   return false;
 }
 
-bool initSIM800() {
+// Инициализация модуля SIM800L
+bool initSIM800L() {
   char buffer[32];  // Буфер для ответа модуля
   Serial.println("Инициализация SIM800L...");
 
@@ -148,14 +127,6 @@ bool getTimeFromSIM() {
 }
 
 // Обновление локального времени (проверка, пора ли обновлять)
-/*void updateLocalTime() {
-  const time_t currentTime = time(nullptr);
-  if (currentTime - lastSyncTime < timeSyncInterval) return;  // Проверка прошло ли уже время обновиться
-  if (getTimeFromSIM()) return;                                 // Обноление через сим
-  if (setupTimeNTP()) return;                                   // Обноление через нтп, то есть интернет
-  lastSyncTime = currentTime;                                 // Если обе попытки неудачны, обновляем lastSyncTime с локального времени
-}*/
-
 void updateLocalTime() {
   while (time(nullptr) < 1670000000UL) {
     static uint32_t lastAttemptTime = 0;  // Создается только в этом блоке и исчезает после установки времени
@@ -170,35 +141,4 @@ void updateLocalTime() {
   if (getTimeFromSIM()) return;                               // Обновление через SIM
   if (setupTimeNTP()) return;                                 // Обновление через NTP
   lastSyncTime = currentTime;                                 // Если обе попытки неудачны, обновляем lastSyncTime
-}
-
-// Вывод локального времени на LCD дисплей
-void printLocalTime() {
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  Serial.print("Current time: ");
-  Serial.println(&timeinfo, "%Y/%m/%d %H:%M:%S");
-  lcd.setCursor(0, 0);
-  lcd.print(&timeinfo, "%Y/%m/%d");
-  lcd.setCursor(0, 1);
-  lcd.print(&timeinfo, "%H:%M:%S");
-}
-
-
-void setup() {
-  Serial.begin(115200);
-  sim800.begin(9600, SERIAL_8N1, MODEM_RX, MODEM_TX);
-  connectWiFi();
-  initSIM800();
-  lcd.init();
-  lcd.backlight();
-}
-
-void loop() {
-  updateLocalTime();  // Обновляем время при необходимости
-  printLocalTime();   // Выводим текущее время на экран
-  delay(1000);
 }

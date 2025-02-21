@@ -1,6 +1,6 @@
 /*
 Проект: Автоматизированная система измерения параметров теплицы
-Версия: ESP32_0.2 21.02.25
+Версия: ESP32_0.2 01.02.25
 Создатели: Крючков Д.Д., Радченко Н.О.
 Руководители: Дрокина Т.М., Захлестов А.М.
 */
@@ -13,8 +13,7 @@
 #include <SD.h>                 // SD
 #include <sqlite3.h>            // SQL (База данных)
 #include <EthernetENC.h>        // Ethernet модулем ENC28J60
-#include <WiFi.h>               // WiFi
-#include <time.h>               // time for esp
+
 
 //--------------------------------ПИНЫ-------------------------------------
 #define LDR_PIN 34            // Пин фоторезистора
@@ -29,33 +28,29 @@
 #define HSPI_CLK 18           // HSPI
 #define SD_CS_PIN 4           // HSPI CS для SD
 #define ETHERNET_CS_PIN 5     // HSPI CS для Ethernet
-#define MODEM_RX 16           // UART для SIM800L
-#define MODEM_TX 17           // UART для SIM800L
+#define MODEM_RX 16           // Пины подключения к SIM800L
+#define MODEM_TX 17           // SIM800L
 #define SDA_PIN 21            // I2C
 #define SCL_PIN 22            // I2C
 
 HardwareSerial sim800(1);
 
 //Подсчет устройств для инициализации
-#define allDevice 5  // Все датчики - sd
+#define allDevice 6  // Все датчики - sd
 uint8_t device = 0;
-
-//------------------------Настройки ESP32--------------------------
-
-//---------------WiFi---------------
-const char* ssid = "POCO X6 5G";     // Название сети
-const char* password = "123456789";  // Пароль сети
-//---------------RTC---------------
-uint8_t gUTC = 3;                   // Часовой полис
-#define NTP_SERVER "pool.ntp.org"   // NTP сервер, для получения времени
-time_t lastSyncTime = 0;            // буфферная переменная последнего локальноного времени
-const int timeSyncInterval = 3600;  // Интервал синхронизации времени в секундах
 
 //!-----------------------------Дисплеи-------------------------------------!
 
 //---------------LCD---------------
 #define LCD_ADDRESS 0x27
-LiquidCrystal_I2C lcd(LCD_ADDRESS, 16, 2);  // Временная инициализация для проверки
+#define LCD_COLUMN 16
+#define LCD_ROW 2
+LiquidCrystal_I2C lcd(LCD_ADDRESS, LCD_COLUMN, LCD_ROW);  // Временная инициализация для проверки
+
+//!------------------------RTC (часы реального времени)--------------------------!
+
+RTC_DS1307 rtc;
+DateTime now;  // переменая времени сейчас
 
 //!-------------------------------SD---------------------------------------!
 
@@ -63,7 +58,7 @@ SPIClass hspi(HSPI);  // Объект HSPI
 
 //------------------------------SQL---------------------------------------
 
-sqlite3* db;
+sqlite3 *db;
 
 //!------------------------Ethernet ENC28J60---------------------------!
 
