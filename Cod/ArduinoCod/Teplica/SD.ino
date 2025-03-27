@@ -1,41 +1,3 @@
-#include <SPI.h>
-#include <SD.h>
-#include <WiFi.h>
-#include <ArduinoJson.h>
-
-#define SD_CS_PIN 4  // Пин чип-селекта для SD-карты
-
-// Структура для хранения настроек WiFi
-struct Settings {
-  String ssid = "";
-  String password = "";
-} settings;
-
-// Структура для хранения данных теплицы
-struct Data {
-  float temperature = 22.6;
-  uint8_t humidity = 21;
-  int16_t soilMoisture = 257;
-} data;
-
-struct {
-  bool SD = false;
-} isPresent;
-
-// Функция инициализации SD-карты
-void initSD() {
-  uint32_t start = millis();
-  while (millis() - start < 3000 && !isPresent.SD) {
-    if (SD.begin(SD_CS_PIN)) {
-      Serial.println("SD-карта инициализирована.");
-      isPresent.SD = true;
-      return;
-    }
-  }
-  Serial.println("Ошибка инициализации SD-карты!");
-  isPresent.SD = false;
-}
-
 // Функция сохранения настроек в JSON
 void saveSettings() {
   if (!isPresent.SD) return;
@@ -47,8 +9,10 @@ void saveSettings() {
   }
 
   JsonDocument doc;
-  doc["ssid"] = settings.ssid;
-  doc["password"] = settings.password;
+  doc["ssid_WiFi"] = settings.ssid_WiFi;
+  doc["password_WiFi"] = settings.password_WiFi;
+  doc["gUTC"] = settings.gUTC;
+  doc["isCorF"] = settings.isCorF;
 
   serializeJson(doc, file);
   file.close();
@@ -75,8 +39,10 @@ void loadSettings() {
     return;
   }
 
-  settings.ssid = doc["ssid"].as<String>();
-  settings.password = doc["password"].as<String>();
+  settings.ssid_WiFi = doc["ssid_WiFi"].as<String>();
+  settings.password_WiFi = doc["password_WiFi"].as<String>();
+  settings.gUTC = doc["gUTC"].as<uint8_t>();
+  settings.isCorF = doc["isCorF"].as<bool>();
   Serial.println("Настройки загружены.");
 }
 
@@ -91,27 +57,18 @@ void saveData() {
   }
 
   JsonDocument doc;
-  doc["temperature"] = data.temperature;
-  doc["humidity"] = data.humidity;
-  doc["soilMoisture"] = data.soilMoisture;
+  doc["airTemp"] = data.airTemp;
+  doc["soilTemp"] = data.soilTemp;
+  doc["airHum"] = data.airHum;
+  doc["soilMois"] = data.soilMois;
+  doc["lightLevel"] = data.lightLevel;
+  doc["isCool"] = data.isCool;
+  doc["isHeat"] = data.isHeat;
+  doc["isDark"] = data.isDark;
 
   serializeJson(doc, file);
   file.println();
   file.close();
 
   Serial.println("Данные сохранены.");
-}
-
-void setup() {
-  Serial.begin(115200);
-  initSD();
-  loadSettings();
-}
-
-void loop() {
-  saveData();
-  data.temperature+=0.1;
-  data.humidity++;
-  data.soilMoisture++;
-  delay(3000);
 }

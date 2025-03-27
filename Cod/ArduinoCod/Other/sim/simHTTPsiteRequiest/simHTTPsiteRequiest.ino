@@ -69,12 +69,12 @@ void setup() {
   Serial.println(modem.localIP());
 }
 
-void loop() {/*
+void loop() { 
   sendHttpRequest("example.com", "/");  // Запрос главной страницы example.com
   delay(5000);
   sendHttpRequest("jsonplaceholder.typicode.com", "/todos/1");  // Запрос JSON-данных
-  delay(5000);*/
+  delay(5000);
   Serial.println(sim800.print("AT+CCLK?"));
   //sendHttpRequest("api.timezonedb.com", "/v2.1/get-time-zone?key=YOUR_API_KEY&format=json&by=zone&zone=Europe/Moscow");
-  delay(10000);                                                        // Запросы раз в минуту
+  delay(10000);  // Запросы раз в минуту
 }

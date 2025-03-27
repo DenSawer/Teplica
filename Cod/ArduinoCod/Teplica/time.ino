@@ -1,87 +1,9 @@
 #define TIMEOUT 500  // Таймаут ожидания в миллисекундах
 
-// Функция ожидания ответа от SIM800L
-bool waitForResponse(const char* expected, char* buffer, uint32_t size) {
-  uint32_t deadline = millis() + TIMEOUT;
-  uint16_t index = 0;  // Достаточно 16 бит для индекса буфера
-
-  while (millis() < deadline) {
-    if (sim800.available()) {
-      char c = sim800.read();
-      if (index < size - 1) buffer[index++] = c;
-      buffer[index] = '\0';  // Завершаем строку
-
-      if (strstr(buffer, expected)) return true;  // Если нашли нужный ответ, выходим
-    }
-  }
-  return false;
-}
-
-// Инициализация модуля SIM800L
-bool initSIM800L() {
-  char buffer[32];  // Буфер для ответа модуля
-  Serial.println("Инициализация SIM800L...");
-
-  // Проверяем, отвечает ли модуль
-  sim800.println("AT");
-  if (!waitForResponse("OK", buffer, sizeof(buffer))) {
-    Serial.println("Ошибка: модуль не отвечает");
-    return false;
-  }
-  Serial.println("Модуль подключен");
-
-  // Проверяем наличие SIM-карты
-  sim800.println("AT+CPIN?");
-  if (!waitForResponse("READY", buffer, sizeof(buffer))) {
-    Serial.println("Ошибка: SIM-карта отсутствует или заблокирована");
-    return false;
-  }
-  Serial.println("SIM-карта присутствует");
-
-  // Проверяем уровень сигнала (RSSI)
-  sim800.println("AT+CSQ");
-  if (!waitForResponse("+CSQ: ", buffer, sizeof(buffer))) {
-    Serial.println("Ошибка: нет ответа по уровню сигнала");
-    return false;
-  }
-  int16_t rssi = atoi(buffer + 6);  // Преобразуем уровень сигнала в число
-  if (rssi == 99) {
-    Serial.println("Ошибка: сигнал недоступен");
-    return false;
-  }
-  Serial.print("Уровень сигнала: ");
-  Serial.println(rssi);
-
-  // Проверяем доступ к мобильному интернету
-  sim800.println("AT+CGATT?");
-  if (!waitForResponse("+CGATT: 1", buffer, sizeof(buffer))) {
-    Serial.println("Ошибка: нет доступа к мобильному интернету");
-    return false;
-  }
-  Serial.println("Доступ к мобильному интернету есть");
-
-  return true;
-}
-
-
-// Подключение к WiFi
-bool connectWiFi() {
-  if (WiFi.status() == WL_CONNECTED) return true;
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi");
-  delay(5000);
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println(" Connected!");
-    return true;
-  }
-  Serial.println(" Not connected!");
-  return false;
-}
-
 // Настройка времени через NTP
 bool setupTimeNTP() {
   if (connectWiFi()) {
-    configTime(3600 * gUTC, 0, NTP_SERVER);  // часовой пояс, летнее время, нтп сервер
+    configTime(3600 * settings.gUTC, 0, NTP_SERVER);  // часовой пояс, летнее время, нтп сервер
     const time_t currentTime = time(nullptr);
     // Если время корректное (порог можно заменить на нужное значение)
     if (currentTime > 1670000000UL) {
@@ -128,7 +50,7 @@ bool getTimeFromSIM() {
 
 // Обновление локального времени (проверка, пора ли обновлять)
 void updateLocalTime() {
-  while (time(nullptr) < 1670000000UL) {
+  if (time(nullptr) < 1670000000UL) {
     static uint32_t lastAttemptTime = 0;  // Создается только в этом блоке и исчезает после установки времени
     if (millis() - lastAttemptTime >= 1000) {
       lastAttemptTime = millis();

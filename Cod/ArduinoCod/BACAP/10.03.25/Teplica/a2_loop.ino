@@ -1,8 +1,4 @@
 void loop() {
-  // WiFi для веб-интерфейса
-  server.handleClient();
-  dnsServer.processNextRequest();
-
   updateLocalTime();  // Обновление времени
 
   readingsDHT();           // Инициализация DHT22
@@ -22,16 +18,16 @@ void readingsDHT() {
   data.airHum = dht.readHumidity();      // Чтение влажности
 
   data.isCool = data.airTemp < 28.0;  // холодно если меньше 23
-  data.isHeat = data.airTemp > 30.0;  // жарко если больше 24
+  data.isHeat = data.airTemp > 30.0;   // жарко если больше 24
 
   // Проверка, удалось ли прочитать данные с датчика DHT22
   if (!isnan(data.airHum) && !isnan(data.airTemp)) {
     // Управление подогревом
     if (data.isCool) digitalWrite(HEAT_PIN, HIGH);  // Включить подогрев
-    else digitalWrite(HEAT_PIN, LOW);               // Выключить подогрев
+    else digitalWrite(HEAT_PIN, LOW);          // Выключить подогрев
     // Управление охлаждением
     if (data.isHeat) digitalWrite(COOL_PIN, HIGH);  // Включить охлаждение
-    else digitalWrite(COOL_PIN, LOW);               // Выключить охлаждение
+    else digitalWrite(COOL_PIN, LOW);          // Выключить охлаждение
   } else {
     Serial.println(F("Ошибка чтения данных с DHT22!"));  // Вывод сообщения об ошибке, если не удалось прочитать данные
     return;
@@ -45,7 +41,7 @@ void readingsLight() {
 
   // Включение или выключение лампы на основе показаний фоторезистора
   if (data.isDark) digitalWrite(LAMP_PIN, HIGH);  // Включить лампу
-  else digitalWrite(LAMP_PIN, LOW);               // Выключить лампу
+  else digitalWrite(LAMP_PIN, LOW);          // Выключить лампу
 }
 
 void readingsSoilMoisture() {
