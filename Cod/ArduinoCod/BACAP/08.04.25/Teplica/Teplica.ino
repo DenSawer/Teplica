@@ -1,6 +1,6 @@
 /*
 Проект: Автоматизированная система измерения параметров теплицы
-Версия: ESP32_0.5 08.04.25
+Версия: ESP32_0.3 07.04.25
 Создатели: Крючков Д.Д., Радченко Н.О.
 */
 
@@ -121,16 +121,13 @@ bool InternetFromSIM = false;
 LiquidCrystal_I2C lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 
 #define SYM_GALOCHKA 3
-#define SYM_CELSIUS 4
-#define SYM_GRADUS_C 5
+#define SYM_GRADUS_C 4
 
 void loadCustomChars() {
   // Кастомные символы
   uint8_t galochkaChar[8] = { 0, 0, 1, 2, 20, 8, 0, 0 };
-  uint8_t celsiusChar[8] = { 28, 20, 28, 3, 4, 4, 4, 3 };
-  uint8_t gradusCChar[8] = { 0x1E, 0x12, 0x12, 0x1E, 0x00, 0x00, 0x00, 0x00 };
+  uint8_t gradusCChar[8] = { 28, 20, 28, 3, 4, 4, 4, 3 };
   lcd.createChar(SYM_GALOCHKA, galochkaChar);
-  lcd.createChar(SYM_CELSIUS, celsiusChar);
   lcd.createChar(SYM_GRADUS_C, gradusCChar);
 }
 
