@@ -9,7 +9,7 @@ void loop() {
       stopAP();
     }
   } else {
-    knopkaState = digitalRead(KNOPKA_PIN);  // читаем кнопку
+    bool knopkaState = digitalRead(KNOPKA_PIN);  // читаем кнопку
     if (knopkaState) {
       knopka = true;
       startAP();
