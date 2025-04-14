@@ -7,15 +7,15 @@ void initSIM() {
       isPresent.SIM = true;
       showLoadingProgressBar("SIM", true);
       getTimeFromSIM();
+      if (!checkSIMCard()) {
+        Serial.println("SIM-карта не найдена");
+        return;
+      }
       return;
     }
   }
   isPresent.SIM = false;
   showLoadingProgressBar("SIM", false);
-  if (!checkSIMCard()) {
-    Serial.println("SIM-карта не найдена");
-    return;
-  }
 }
 
 // Функция проверки наличия SIM-карты

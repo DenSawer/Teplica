@@ -1,19 +1,47 @@
 void loop() {
-  // WiFi для веб-интерфейса
-  server.handleClient();
-  dnsServer.processNextRequest();
+  unsigned long currentMillis = millis();                                  // Текущее время
+  static unsigned long lastUpdate1 = 0, lastUpdate2 = 0, lastUpdate3 = 0;  // Время последнего обновления
 
-  readCO2ppm();
-  readAirSensors();       // Инициализация DHT22
-  readSoilMois();
-  readSoilTemp();
-  readLightSensors();
+  if (knopka) {
+    if (currentMillis - lastUpdate1 > 30 * 60000) {
+      lastUpdate1 = currentMillis;
+      knopka = false;
+      stopAP();
+    }
+  } else {
+    knopkaState = digitalRead(KNOPKA_PIN);  // читаем кнопку
+    if (knopkaState) {
+      knopka = true;
+      startAP();
+    }
+  }
 
-  updateLocalTime();   // Обновление времени
+  if (currentMillis - lastUpdate2 > 1000 && knopka) {
+    lastUpdate2 = currentMillis;
+    // WiFi для веб-интерфейса
+    server.handleClient();
+    dnsServer.processNextRequest();
+    displayMonitor();
+    serialMonitor();
+  }
 
-  displayMonitor();
-  serialMonitor();
-  saveData();
+  if (currentMillis - lastUpdate3 > 5000) {
+    lastUpdate3 = currentMillis;
+    readCO2ppm();
+    readAirSensors(); 
+    readSoilMois();
+    readSoilTemp();
+    readLightSensors();
+    updateLocalTime();  // Обновление времени
+    saveData();         // Сохранение данных
+  }
+}
 
-  delay(1000);
+void startAP() {
+  WiFi.mode(WIFI_AP_STA);  // если вдруг был WIFI_STA
+  WiFi.softAP(settings.ssid_AP);
+}
+
+void stopAP() {
+  WiFi.softAPdisconnect(true);  // отключает только AP
 }

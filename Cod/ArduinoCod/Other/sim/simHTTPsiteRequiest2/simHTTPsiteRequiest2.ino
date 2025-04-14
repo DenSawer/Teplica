@@ -5,7 +5,7 @@ HardwareSerial sim800(1);
 #define SIM_TX 17
 #define SIM_BAUD 9600
 
-const char *defaultAPN = "";
+const char *defaultAPN = "MCS";
 const char *defaultUser = "";
 const char *defaultPass = "";
 
@@ -15,7 +15,8 @@ const char *apnList[][4] = {
   { "25002", "internet", "gdata", "gdata" },
   { "25020", "internet.tele2.ru", "tele2", "tele2" },
   { "25026", "internet.yota", "", "" },
-  { "25096", "Inter96", "Inter96", "Inter96" }
+  { "25096", "Inter96", "Inter96", "Inter96" },
+  { "25098", "mcs", "", "" }
 };
 
 struct {
@@ -158,12 +159,13 @@ void setup() {
 }
 
 void loop() {
+  Serial.println(getMCCMNC());
   if (sendHTTPRequest("example.com")) {
     Serial.println("HTTP-запрос успешен");
   } else {
     Serial.println("Ошибка HTTP-запроса");
   }
-  Serial.println(getMCCMNC());
+
   uint32_t lastRequest = millis();
   while (millis() - lastRequest < 5000) {}
 }

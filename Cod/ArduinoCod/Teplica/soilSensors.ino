@@ -7,8 +7,6 @@ void initSoilTemp() {
     char str_out[20];
     sprintf(str_out, "Soil Temp Sensor %d", sensorCount);
     showLoadingProgressBar(str_out, true);
-    Serial.print("Найдено датчиков DS18B20: ");
-    Serial.println(sensorCount);
   } else {
     isPresent.soilTempSensor = false;
     showLoadingProgressBar("Soil Temp Sensor", false);
@@ -51,7 +49,7 @@ void readSoilMois() {
   if (!isPresent.soilMoisSensor) return;
   int16_t adcValue = analogRead(SOIL_MOISTURE_PIN);
   data.soilMois = static_cast<uint8_t>(constrain(100 * (dryADC - adcValue) / (dryADC - wetADC), 0, 100));
-
+/*
   Serial.print("ADC: ");
   Serial.print(adcValue);
   Serial.print(" | Влажность: ");
@@ -66,5 +64,5 @@ void readSoilMois() {
     Serial.println("🌿 Влажность в норме.");
   } else {
     Serial.println("💦 Почва слишком влажная! Возможен застой воды.");
-  }
+  }*/
 }

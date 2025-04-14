@@ -23,10 +23,10 @@ void initLightSensors() {
 // Функция считывания данных с BH1750
 void readLightSensors() {
   if (!isPresent.lightSensor) return;
+  
   if (activeLightSensor == "BH1750") {
     data.lightLevel = lightMeter.readLightLevel();
-  }
-  else{
+  } else {
     Serial.print("Ошибка считывания");
   }
 }

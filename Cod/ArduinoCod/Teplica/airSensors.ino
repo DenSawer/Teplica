@@ -58,10 +58,8 @@ void initAirSensor() {
 
 // === ЧТЕНИЕ ДАННЫХ С ВЫБРАННОГО ДАТЧИКА ===
 void readAirSensors() {
-  if (!isPresent.airSensor) {
-    Serial.println("⚠️ Нет активного датчика!");
-    return;
-  }
+  if (!isPresent.airSensor) return;
+  
   if (activeAirSensor == "SCD30" || activeAirSensor == "SCD4x") {
     readCO2TH();
     // --------------SHT4x---------------

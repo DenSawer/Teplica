@@ -3,15 +3,21 @@ void setup() {
   sim800.begin(9600, SERIAL_8N1, SIM_RX, SIM_TX);  // Инициализация SIM порта со скоростью 9600 бод
 
   Wire.begin();  // I2C
+  //setupRelay();
+  pcf.begin();
+  for (uint8_t i = 0; i < 8; i++) {
+    pcf.pinMode(i, OUTPUT);
+    pcf.digitalWrite(i, LOW);
+  }
   //--------------------------------Инициализация система---------------------------------------
   Serial.println("Начало инициализации системы...");
-  initLCD();            // Инициализация LCD
-  initSD();             // Инициализация SD
-  loadSettings();       // Загрузка настроек
-  initSIM();            // Инициализация SIM
-  initEthernet();       // Инициализация Ethernet
-  initWiFi();           // Инициализация WiFi, включение точки доступа и веб-сервера
-  connectToInternet();  // Первичное подключение к Интернету по различным интерфейсам
+  initLCD();       // Инициализация LCD
+  initSD();        // Инициализация SD
+  loadSettings();  // Загрузка настроек
+  initSIM();       // Инициализация SIM
+  initEthernet();  // Инициализация Ethernet
+  initWiFi();      // Инициализация WiFi, включение точки доступа и веб-сервера
+  //connectToInternet();  // Первичное подключение к Интернету по различным интерфейсам
   // ==== Sensors ====
   initCO2Sensor();
   initAirSensor();  // Инициализация DHT22
@@ -40,7 +46,7 @@ void showLoadingProgressBar(const char *str, bool yes_no) {
   lcd.setCursor(progressBar - 2, 3);
   lcd.print(progressProcent);
   lcd.print("%");
-  
+
   lcd.setCursor(0, 0);
   lcd.print(str);
   lcd.print(' ');
@@ -57,5 +63,8 @@ void showLoadingProgressBar(const char *str, bool yes_no) {
     tone(BIPER_PIN, 1000, 500);
     delay(3500);
   }
-  if (device == allDevice) lcd.clear();
+  if (device == allDevice) {
+    delay(1000);
+    lcd.clear();
+  }
 }

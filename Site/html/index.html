@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Теплица ESP32</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f9fff9;
+      color: #333;
+    }
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+    }
+    header span {
+      font-size: 1.5rem;
+      margin-right: 10px;
+    }
+    h1 {
+      font-size: 1.2rem;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .card {
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .card h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+    .card p {
+      font-size: 1.5rem;
+      color: #4CAF50;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      padding: 1rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span>🌱</span><h1>Теплица ESP32</h1>
+  </header>
+
+  <section class="cards" id="sensorCards">
+    <!-- Cards будут сюда -->
+  </section>
+
+  <footer>
+    &copy; 2025 Твоя Теплица. Все права защищены.
+  </footer>
+
+  <script>
+    async function fetchData() {
+      try {
+        const res = await fetch('data.json');
+        const text = await res.text();
+        console.log('Данные raw:', text);
+
+        const lines = text.trim().split('\\n');
+        const lastLine = lines[lines.length - 1];
+        const data = JSON.parse(lastLine);
+
+        const sensors = {
+          airTemp: 'Темп. воздуха (°C)',
+          soilTemp: 'Темп. почвы (°C)',
+          airHum: 'Влажн. воздуха (%)',
+          soilMois: 'Влажн. почвы (%)',
+          lightLevel: 'Освещённость (lx)',
+          CO2ppm: 'CO₂ (ppm)'
+        };
+
+        const container = document.getElementById('sensorCards');
+        container.innerHTML = '';
+
+        for (let key in sensors) {
+          const value = data[key] ?? '—';
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `<h2>${sensors[key]}</h2><p>${value}</p>`;
+          container.appendChild(card);
+        }
+      } catch (err) {
+        console.error('Ошибка загрузки данных:', err);
+      }
+    }
+
+    fetchData();
+    setInterval(fetchData, 10000);
+  </script>
+</body>
+</html>

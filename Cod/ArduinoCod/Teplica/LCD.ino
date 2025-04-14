@@ -17,12 +17,6 @@ void initLCD() {
 }
 
 void displayMonitor() {
-  static unsigned long lastDisplayUpdate = 0;  // Время последнего обновления
-  unsigned long currentMillis = millis();      // Текущее время
-
-  if (currentMillis - lastDisplayUpdate < 1000) return;  // Обновляем раз в секунду
-  lastDisplayUpdate = currentMillis;
-
   // Получаем время
   char timeStr[6] = "--:--";
   bool timeAvailable = false;
@@ -35,7 +29,7 @@ void displayMonitor() {
 
   char line[21];  // Буфер для строки
 
-  // --- Строка 1: Температура воздуха и время ---
+  // --- Строка 1 ---
   if (timeAvailable) {
     snprintf(line, sizeof(line), "CO2:  %uppm  %s", data.CO2ppm, timeStr);
   } else {
@@ -43,37 +37,17 @@ void displayMonitor() {
   }
   padAndPrint(0, 0, line);
 
-  // --- Строка 2: Температура почвы и влажность воздуха ---
+  // --- Строка 2 ---
   snprintf(line, sizeof(line), "Air:  %.1f\xDF\C  %u%%", data.airTemp, data.airHum);
   padAndPrint(0, 1, line);
 
-  // --- Строка 3: Влажность почвы и освещённость ---
+  // --- Строка 3 ---
   snprintf(line, sizeof(line), "Soil: %.1f\xDF\C  %d%%", data.soilTemp, data.soilMois);
   padAndPrint(0, 2, line);
 
-  // --- Строка 4: CO2 уровень ---
+  // --- Строка 4 ---
   snprintf(line, sizeof(line), "Light:%uLx", data.lightLevel);
   padAndPrint(0, 3, line);
-
-  /*// --- Строка 1: Температура воздуха и время ---
-  if (timeAvailable) {
-    snprintf(line, sizeof(line), "Air:%.1fC   Time:%s", data.airTemp, timeStr);
-  } else {
-    snprintf(line, sizeof(line), "Air:%.1fC   Time:--:--", data.airTemp);
-  }
-  padAndPrint(0, 0, line);
-
-  // --- Строка 2: Температура почвы и влажность воздуха ---
-  snprintf(line, sizeof(line), "Soil:%.1fC  RH:%u%%", data.soilTemp, data.airHum);
-  padAndPrint(0, 1, line);
-
-  // --- Строка 3: Влажность почвы и освещённость ---
-  snprintf(line, sizeof(line), "SoilM:%d%% Light:%ulx", data.soilMois, data.lightLevel);
-  padAndPrint(0, 2, line);
-
-  // --- Строка 4: CO2 уровень ---
-  snprintf(line, sizeof(line), "CO2: %u ppm", data.CO2ppm);
-  padAndPrint(0, 3, line);*/
 }
 
 

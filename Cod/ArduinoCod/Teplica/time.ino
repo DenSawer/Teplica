@@ -2,7 +2,7 @@
 
 // Настройка времени через NTP
 bool setupTimeNTP() {
-  if (connectWiFi()) {
+  if (isConnect) {
     configTime(3600 * settings.gUTC, 0, NTP_SERVER);  // часовой пояс, летнее время, нтп сервер
     const time_t currentTime = time(nullptr);
     // Если время корректное (порог можно заменить на нужное значение)
@@ -11,6 +11,7 @@ bool setupTimeNTP() {
       return true;
     }
   }
+  else connectToInternet();
   return false;
 }
 

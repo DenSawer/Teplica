@@ -14,6 +14,7 @@ String getMCCMNC() {
 }
 
 bool connectGPRS() {
+  if (!isPresent.SIM) return false;
   const char *apn = defaultAPN;
   const char *user = defaultUser;
   const char *pass = defaultPass;
@@ -98,6 +99,15 @@ void generateRandomMAC(uint8_t *mac) {
     mac[i] = random(0, 256);
   }
 }
+/*void generateRandomMAC(uint8_t *mac) {
+  mac[0] = 0xDE;  // или 0x02 если хочешь "локальный"
+  mac[1] = 0xAD;
+  mac[2] = 0xBE;
+  mac[3] = random(0, 256);
+  mac[4] = random(0, 256);
+  mac[5] = random(0, 256);
+}*/
+
 
 // Функция проверки наличия Ethernet модуля - ENC28J60
 void initEthernet() {
@@ -125,7 +135,7 @@ void initWiFi() {
 }
 
 // Функция инициализации ENC28J60 и получения IP через DHCP
-bool connectEthernet() {
+/*bool connectEthernet() {
   if (!isPresent.Ethernet) return false;
   uint8_t mac[6];
   generateRandomMAC(mac);  // Генерируем случайный MAC-адрес
@@ -144,7 +154,66 @@ bool connectEthernet() {
   Serial.print("IP-адрес: ");
   Serial.println(Ethernet.localIP());
   return true;
+}*/
+
+
+
+bool connectEthernet() {
+  static bool connected = false;
+  static uint8_t savedMAC[6];
+  static IPAddress savedIP;
+
+  if (!isPresent.Ethernet) return false;
+  if (connected) {
+    Ethernet.begin(savedMAC);
+    Ethernet.localIP() = savedIP;
+    return true;
+  }
+
+  // Проверим, есть ли сохранённые данные
+  if (EEPROM.read(EEPROM_FLAG_ADDR) == 0xA5) {
+    for (int i = 0; i < 6; i++) savedMAC[i] = EEPROM.read(EEPROM_MAC_ADDR + i);
+    for (int i = 0; i < 4; i++) savedIP[i] = EEPROM.read(EEPROM_IP_ADDR + i);
+
+    Ethernet.begin(savedMAC, savedIP);
+    delay(500);  // небольшой буфер
+    if (Ethernet.linkStatus() == LinkON) {
+      connected = true;
+      Serial.println("Подключились с сохранёнными MAC/IP");
+      return true;
+    }
+  }
+
+  // Если не получилось — пробуем DHCP с новым MAC
+  uint8_t mac[6];
+  generateRandomMAC(mac);
+
+  Serial.print("Пробуем DHCP. MAC: ");
+  for (int i = 0; i < 6; i++) Serial.printf("%02X:", mac[i]);
+  Serial.println();
+
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Ошибка DHCP");
+    return false;
+  }
+
+  IPAddress ip = Ethernet.localIP();
+  Serial.print("Успешное подключение! IP: ");
+  Serial.println(ip);
+
+  // Сохраняем в EEPROM
+  EEPROM.write(EEPROM_FLAG_ADDR, 0xA5);
+  for (int i = 0; i < 6; i++) EEPROM.write(EEPROM_MAC_ADDR + i, mac[i]);
+  for (int i = 0; i < 4; i++) EEPROM.write(EEPROM_IP_ADDR + i, ip[i]);
+  EEPROM.commit();  // если на ESP (иначе не надо)
+
+  memcpy(savedMAC, mac, 6);
+  savedIP = ip;
+  connected = true;
+
+  return true;
 }
+
 /*
 bool sendHTTPRequestSIM(const char *host) {
   sim800.print("AT+CIPSTART=\"TCP\",\"");
@@ -209,7 +278,7 @@ String httpRequestSIM(const char *host) {
 
 // Универсальная функция HTTP-запросов
 String httpRequest(const char *url, const char *method = "GET", const char *payload = nullptr) {
-  if (InternetFromSIM = false){
+  if (InternetFromSIM = false) {
     httpRequestSIM(url);
     return "";
   }
@@ -314,23 +383,27 @@ void serveFile(String path) {
 }
 
 // Попытка подключения через доступные интерфейсы
-bool connectToInternet() {
+void connectToInternet() {
   if (connectEthernet()) {
     Serial.println("** Connected via Ethernet **");
     InternetFromSIM = false;
-    return true;
+    isConnect = true;
+    return;
   }
   if (connectGPRS()) {
     Serial.println("** Connected via SIM800L **");
     InternetFromSIM = true;
-    return true;
+    isConnect = true;
+    return;
   }
   if (connectWiFi()) {
     Serial.println("** Connected via WiFi **");
     InternetFromSIM = false;
-    return true;
+    isConnect = true;
+    return;
   }
   Serial.println("** No Internet connection **");
   InternetFromSIM = false;
-  return false;
+  isConnect = false;
+  return;
 }

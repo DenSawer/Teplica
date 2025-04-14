@@ -29,10 +29,7 @@ void initCO2Sensor() {
 }
 
 void readCO2ppm() {
-  if (!isPresent.CO2Sensor) {
-    Serial.println("⚠️ Нет активного CO2 датчика!");
-    return;
-  }
+  if (!isPresent.CO2Sensor) return;
 
   if (activeCO2Sensor == "SCD30") {
     if (scd30.dataReady()) {
@@ -51,10 +48,8 @@ void readCO2ppm() {
 }
 
 void readCO2TH() {
-  if (!isPresent.CO2Sensor) {
-    Serial.println("⚠️ Нет активного CO2 датчика!");
-    return;
-  }
+  if (!isPresent.CO2Sensor) return;
+
   if (activeCO2Sensor == "SCD30") {
     if (scd30.dataReady()) {
       scd30.read();

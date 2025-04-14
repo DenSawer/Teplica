@@ -3,11 +3,11 @@ void serialMonitor() {
   if (getLocalTime(&timeinfo)) {
     Serial.println("===================================");
     Serial.print("📅 Время: ");
-    Serial.println(&timeinfo, "%Y-%m-%d %H:%M:%S");
+    Serial.println(&timeinfo, "%d/%m/%Y %H:%M:%S");
 
     Serial.println("📊 Показания датчиков:");
-    Serial.printf("🌡️  Температура воздуха:     %.2f °C\n", data.airTemp);
-    Serial.printf("🌡️  Температура почвы:       %.2f °C\n", data.soilTemp);
+    Serial.printf("🌡️  Температура воздуха:     %.1f °C\n", data.airTemp);
+    Serial.printf("🌡️  Температура почвы:       %.1f °C\n", data.soilTemp);
     Serial.printf("💧 Влажность воздуха:         %u %%\n", data.airHum);
     Serial.printf("🌱 Влажность почвы:           %d %%\n", data.soilMois);
     Serial.printf("💡 Освещенность:              %u Лк\n", data.lightLevel);

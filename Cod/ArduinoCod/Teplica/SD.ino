@@ -26,7 +26,6 @@ void saveSettings() {
   doc["ssid_WiFi"] = settings.ssid_WiFi;
   doc["password_WiFi"] = settings.password_WiFi;
   doc["gUTC"] = settings.gUTC;
-  doc["isCorF"] = settings.isCorF;
 
   serializeJson(doc, file);
   file.close();
@@ -56,33 +55,64 @@ void loadSettings() {
   settings.ssid_WiFi = doc["ssid_WiFi"].as<String>();
   settings.password_WiFi = doc["password_WiFi"].as<String>();
   settings.gUTC = doc["gUTC"].as<uint8_t>();
-  settings.isCorF = doc["isCorF"].as<bool>();
   Serial.println("Настройки загружены.");
 }
 
-// Функция сохранения данных в JSON-формате (MongoDB-совместимый формат)
+// Глобальные переменные
+int lastSavedHour = -1;
+int lastSavedHalfHour = -1;
+
 void saveData() {
   if (!isPresent.SD) return;
 
+  // Получаем текущее время
+  time_t now = time(nullptr);
+  struct tm timeinfo;
+  localtime_r(&now, &timeinfo);
+
+  int currentHour = timeinfo.tm_hour;
+  int currentHalfHour = (timeinfo.tm_min < 30) ? 0 : 1;
+
+  // Проверяем: прошло ли новое 30-минутное окно
+  if (currentHour == lastSavedHour && currentHalfHour == lastSavedHalfHour) {
+    return;  // уже сохраняли в этом интервале
+  }
+
+  // Обновляем контрольные значения
+  lastSavedHour = currentHour;
+  lastSavedHalfHour = currentHalfHour;
+
+  // Форматируем дату и время
+  char dateStr[11];  // DD/MM/YYYY
+  char timeStr[9];   // HH:MM:SS
+  strftime(dateStr, sizeof(dateStr), "%d/%m/%Y", &timeinfo);
+  strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &timeinfo);
+
+  // Открываем файл
   File file = SD.open("/data.json", FILE_APPEND);
   if (!file) {
     Serial.println("Ошибка записи в data.json");
-    return;
+    file = SD.open("/data.json", FILE_WRITE);
+    if (!file) {
+      Serial.println("Не удалось создать файл");
+      return;
+    }
   }
 
+  // Формируем JSON
   JsonDocument doc;
+  doc["date"] = dateStr;
+  doc["time"] = timeStr;
   doc["airTemp"] = data.airTemp;
   doc["soilTemp"] = data.soilTemp;
   doc["airHum"] = data.airHum;
   doc["soilMois"] = data.soilMois;
   doc["lightLevel"] = data.lightLevel;
-  doc["isCool"] = data.isCool;
-  doc["isHeat"] = data.isHeat;
-  doc["isDark"] = data.isDark;
+  doc["CO2ppm"] = data.CO2ppm;
 
   serializeJson(doc, file);
   file.println();
   file.close();
 
-  Serial.println("Данные сохранены.");
+  Serial.println("Данные сохранены раз в 30 минут.");
 }
