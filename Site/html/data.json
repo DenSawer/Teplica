@@ -3,3 +3,15 @@
 {"date":"11/04/2025","time":"14:00:00","airTemp":21,"soilTemp":21.6875,"airHum":47,"soilMois":54,"lightLevel":860,"CO2ppm":278}
 {"date":"11/04/2025","time":"14:30:00","airTemp":22,"soilTemp":22.6875,"airHum":48,"soilMois":55,"lightLevel":987,"CO2ppm":265}
 {"date":"11/04/2025","time":"15:00:00","airTemp":23,"soilTemp":23.6875,"airHum":49,"soilMois":56,"lightLevel":1150,"CO2ppm":245}
+{"date":"11/04/2025","time":"15:30:00","airTemp":31,"soilTemp":33.6875,"airHum":79,"soilMois":76,"lightLevel":150,"CO2ppm":845}
+{"date":"12/04/2025","time":"13:00:00","airTemp":19,"soilTemp":19.6875,"airHum":45,"soilMois":52,"lightLevel":1031,"CO2ppm":200}
+{"date":"12/04/2025","time":"13:30:00","airTemp":40,"soilTemp":20.6875,"airHum":96,"soilMois":53,"lightLevel":900,"CO2ppm":300}
+{"date":"12/04/2025","time":"14:00:00","airTemp":21,"soilTemp":21.6875,"airHum":47,"soilMois":94,"lightLevel":860,"CO2ppm":278}
+{"date":"12/04/2025","time":"14:30:00","airTemp":42,"soilTemp":22.6875,"airHum":98,"soilMois":59,"lightLevel":987,"CO2ppm":265}
+{"date":"12/04/2025","time":"15:00:00","airTemp":23,"soilTemp":23.6875,"airHum":49,"soilMois":56,"lightLevel":1150,"CO2ppm":245}
+{"date":"12/04/2025","time":"15:30:00","airTemp":31,"soilTemp":33.6875,"airHum":79,"soilMois":76,"lightLevel":150,"CO2ppm":845}
+{"date":"15/04/2025","time":"14:00:00","airTemp":21,"soilTemp":21.6875,"airHum":47,"soilMois":94,"lightLevel":860,"CO2ppm":278}
+{"date":"15/04/2025","time":"14:30:00","airTemp":42,"soilTemp":22.6875,"airHum":98,"soilMois":59,"lightLevel":987,"CO2ppm":265}
+{"date":"15/04/2025","time":"15:00:00","airTemp":23,"soilTemp":23.6875,"airHum":49,"soilMois":56,"lightLevel":1150,"CO2ppm":245}
+{"date":"15/04/2025","time":"15:30:00","airTemp":31,"soilTemp":33.6875,"airHum":79,"soilMois":76,"lightLevel":150,"CO2ppm":845}
+{"date":"15/04/2025","time":"16:00:00","airTemp":21,"soilTemp":23.6875,"airHum":99,"soilMois":46,"lightLevel":1050,"CO2ppm":345}
