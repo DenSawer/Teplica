@@ -48,6 +48,8 @@ void displayMonitor() {
   // --- Строка 4 ---
   snprintf(line, sizeof(line), "Light:%uLx", data.lightLevel);
   padAndPrint(0, 3, line);
+  snprintf(line, sizeof(line), "%i", settings.espID);
+  padAndPrint(11, 3, line);
 }
 
 

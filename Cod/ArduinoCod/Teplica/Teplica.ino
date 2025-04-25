@@ -1,6 +1,6 @@
 /*
 Проект: Автоматизированная система измерения параметров теплицы
-Версия: ESP32_0.5 24.04.25
+Версия: ESP32_0.5 25.04.25
 Создатели: Крючков Д.Д., Радченко Н.О.
 */
 
@@ -24,10 +24,10 @@
 #include <time.h>               // time for esp
 #include <WebServer.h>          // для раздачи веб-интерфейса
 #include <DNSServer.h>          // для открытия веб-интрефейса автоматом(принудительно)
-#include <UIPEthernet.h>        // Ethernet
-#include <HTTPClient.h>         // для создания веб-интерфейса
-#include <EEPROM.h>
-#include <PCF8574.h>
+#include <EthernetENC.h>        // Ethernet
+#include <HTTPClient.h>         
+#include <PCF8574.h>            // для расширителя портов на реле
+#include <CRC32.h>              // преобразование в 32-битное значение(для моздания ID c MAC-адреса)
 
 //--------------------------------ПИНЫ-------------------------------------
 #define LDR_PIN 34            // Пин фоторезистора
@@ -54,12 +54,11 @@ EthernetClient client;     // для Ethernet
 
 // Структура для хранения настроек
 struct {
-  // Данные для подключения к заданной Wi-Fi сети
+  char espID[7];                   // ID устройства
   String ssid_WiFi = "POCO X6 5G";     // Название сети WiFi
   String password_WiFi = "123456789";  // Пароль сети WiFi
-  // Данные для создания точки доступа
-  String ssid_AP = "Teplica";  // Название сети WiFi точки доступа
-  uint8_t gUTC = 3;            // Часовой пояс RTC
+  String ssid_AP = "Teplica";          // Название сети WiFi точки доступа
+  uint8_t gUTC = 3;                    // Часовой пояс RTC
 } settings;
 
 // Структура для хранения данных теплицы
@@ -128,6 +127,10 @@ bool relayState[8] = { false };
 
 //------------------------Настройки ESP32--------------------------
 
+// Преобразование для уменьшения ID в base62
+const char base62chars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+uint8_t mac[6];
+
 //---------------RTC---------------
 #define NTP_SERVER "pool.ntp.org"        // NTP сервер, для получения времени
 time_t lastSyncTime = 0;                 // буфферная переменная последнего локальноного времени
@@ -138,10 +141,6 @@ WebServer server(80);
 DNSServer dnsServer;  // Для Captive Portal
 
 bool isConnect = false;
-#define EEPROM_FLAG_ADDR 0  // 1 байт: есть ли сохранение
-#define EEPROM_MAC_ADDR 1   // 6 байт: MAC
-#define EEPROM_IP_ADDR 7    // 4 байта: IP
-
 bool knopka = true;
 
 //!------------------------------SIM---------------------------------!

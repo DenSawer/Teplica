@@ -99,14 +99,6 @@ void generateRandomMAC(uint8_t *mac) {
     mac[i] = random(0, 256);
   }
 }
-/*void generateRandomMAC(uint8_t *mac) {
-  mac[0] = 0xDE;  // или 0x02 если хочешь "локальный"
-  mac[1] = 0xAD;
-  mac[2] = 0xBE;
-  mac[3] = random(0, 256);
-  mac[4] = random(0, 256);
-  mac[5] = random(0, 256);
-}*/
 
 
 // Функция проверки наличия Ethernet модуля - ENC28J60
@@ -128,31 +120,13 @@ bool isEthernetLinkActive() {
   return (phstat2 & (1 << 10)) != 0;
 }
 
-// Функция инициализации Wi-Fi
-void initWiFi() {
-  WiFi.mode(WIFI_AP_STA);         // Режим работы и точки доступа и приема вифи
-  WiFi.softAP(settings.ssid_AP);  // Имя точки доступа
-  Serial.println("Точка доступа запущена");
-  Serial.print("IP-адрес точки доступа: ");
-  Serial.println(WiFi.softAPIP());
-
-  server.onNotFound(handleRequest);  // Запуск веб-интерфейса
-  server.begin();
-  dnsServer.start(53, "*", WiFi.softAPIP());  // DNS хрень которая должна принудительно открывать наш веб-интерфейс
-  showLoadingProgressBar("Wi-Fi", true);
-}
 
 // Функция инициализации ENC28J60 и получения IP через DHCP
-/*bool connectEthernet() {
+bool connectEthernet() {
   if (!isPresent.Ethernet) return false;
   uint8_t mac[6];
   generateRandomMAC(mac);  // Генерируем случайный MAC-адрес
 
-  Serial.print("Сгенерированный MAC-адрес: ");
-  for (int8_t i = 0; i < 6; i++) {
-    Serial.printf("%02X:", mac[i]);
-  }
-  Serial.println();
 
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Ошибка: не удалось получить IP-адрес через DHCP");
@@ -161,66 +135,6 @@ void initWiFi() {
 
   Serial.print("IP-адрес: ");
   Serial.println(Ethernet.localIP());
-  return true;
-}*/
-
-
-
-bool connectEthernet() {
-  static bool connected = false;
-  static uint8_t savedMAC[6];
-  static IPAddress savedIP;
-
-  if (!isPresent.Ethernet) return false;
-  if (isPresent.Ethernet) return false;
-  //if (!isEthernetLinkActive()) return false;  // Если модуля нет, не имеет смысла проверять линк
-  if (connected) {
-    Ethernet.begin(savedMAC);
-    Ethernet.localIP() = savedIP;
-    return true;
-  }
-
-  // Проверим, есть ли сохранённые данные
-  if (EEPROM.read(EEPROM_FLAG_ADDR) == 0xA5) {
-    for (int i = 0; i < 6; i++) savedMAC[i] = EEPROM.read(EEPROM_MAC_ADDR + i);
-    for (int i = 0; i < 4; i++) savedIP[i] = EEPROM.read(EEPROM_IP_ADDR + i);
-
-    Ethernet.begin(savedMAC, savedIP);
-    delay(500);  // небольшой буфер
-    if (Ethernet.linkStatus() == LinkON) {
-      connected = true;
-      Serial.println("Подключились с сохранёнными MAC/IP");
-      return true;
-    }
-  }
-
-  // Если не получилось — пробуем DHCP с новым MAC
-  uint8_t mac[6];
-  generateRandomMAC(mac);
-
-  Serial.print("Пробуем DHCP. MAC: ");
-  for (int i = 0; i < 6; i++) Serial.printf("%02X:", mac[i]);
-  Serial.println();
-
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Ошибка DHCP");
-    return false;
-  }
-
-  IPAddress ip = Ethernet.localIP();
-  Serial.print("Успешное подключение! IP: ");
-  Serial.println(ip);
-
-  // Сохраняем в EEPROM
-  EEPROM.write(EEPROM_FLAG_ADDR, 0xA5);
-  for (int i = 0; i < 6; i++) EEPROM.write(EEPROM_MAC_ADDR + i, mac[i]);
-  for (int i = 0; i < 4; i++) EEPROM.write(EEPROM_IP_ADDR + i, ip[i]);
-  EEPROM.commit();  // если на ESP (иначе не надо)
-
-  memcpy(savedMAC, mac, 6);
-  savedIP = ip;
-  connected = true;
-
   return true;
 }
 
@@ -312,6 +226,20 @@ String httpRequest(const char *url, const char *method = "GET", const char *payl
 
   http.end();  // Закрываем соединение
   return response;
+}
+
+// Функция инициализации Wi-Fi
+void initWiFi() {
+  WiFi.mode(WIFI_AP_STA);         // Режим работы и точки доступа и приема вифи
+  WiFi.softAP(settings.ssid_AP);  // Имя точки доступа
+  Serial.println("Точка доступа запущена");
+  Serial.print("IP-адрес точки доступа: ");
+  Serial.println(WiFi.softAPIP());
+
+  server.onNotFound(handleRequest);  // Запуск веб-интерфейса
+  server.begin();
+  dnsServer.start(53, "*", WiFi.softAPIP());  // DNS хрень которая должна принудительно открывать наш веб-интерфейс
+  showLoadingProgressBar("Wi-Fi", true);
 }
 
 // Функция подключения к Wi-Fi с автопоиском открытых сетей
