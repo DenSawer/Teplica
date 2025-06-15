@@ -8,24 +8,26 @@ void loop() {
 
   if (knopka) {
     if (currentMillis - lastUpdate1 > 30 * 60000 || digitalRead(KNOPKA_PIN) == HIGH) {
-      knopka = false;
       lcd.noBacklight();
       lcd.clear();
       stopAP();
       while (digitalRead(KNOPKA_PIN) == HIGH)
         ;
+      delay(1000);
+      knopka = false;
     }
   } else {
     // читаем кнопку
     if (digitalRead(KNOPKA_PIN) == HIGH) {
       lastUpdate1 = currentMillis;
       start = true;
-      knopka = true;
       lcd.backlight();
       displayMonitor();
       startAP();
       while (digitalRead(KNOPKA_PIN) == HIGH)
         ;
+      delay(1000);
+      knopka = true;
     }
   }
 

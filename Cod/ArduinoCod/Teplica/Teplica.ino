@@ -48,7 +48,7 @@
 #define SIM_TX 17             // UART для SIM800L
 #define SDA_PIN 21            // I2C
 #define SCL_PIN 22            // I2C
-#define KNOPKA_PIN 12         // Кнопка включения дисплея
+#define KNOPKA_PIN 13         // Кнопка включения дисплея
 
 HardwareSerial sim800(1);  // UART для SIM800L
 EthernetClient client;     // для Ethernet
