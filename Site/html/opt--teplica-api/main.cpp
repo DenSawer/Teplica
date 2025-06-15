@@ -14,7 +14,7 @@ int main()
         // Проверка: 6 символов, только буквы/цифры, чувствительно к регистру
         std::regex code_format("^[A-Za-z0-9]{6}$");
         if (!std::regex_match(code, code_format)) {
-            return crow::response(400, "Invalid code format (must be 6 uppercase alphanumerics)");
+            return crow::response(400, "Invalid code format. Must be 6 alphanumeric characters.");
         }
 
         // Директория и путь к файлу
