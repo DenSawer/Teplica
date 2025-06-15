@@ -2,8 +2,7 @@ void serialMonitor() {
   struct tm timeinfo;
   if (getLocalTime(&timeinfo)) {
     Serial.println("===================================");
-    Serial.printf("ESP ID: ");
-    Serial.println(settings.espID);
+    Serial.print("ESP ID: %i", settings.espID)
     Serial.print("📅 Время: ");
     Serial.println(&timeinfo, "%d/%m/%Y %H:%M:%S");
 

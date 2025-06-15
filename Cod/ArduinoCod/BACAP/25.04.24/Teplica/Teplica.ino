@@ -1,6 +1,6 @@
 /*
 Проект: Автоматизированная система измерения параметров теплицы
-Версия: ESP32_0.5 14.06.25
+Версия: ESP32_0.5 25.04.25
 Создатели: Крючков Д.Д., Радченко Н.О.
 */
 
@@ -25,8 +25,7 @@
 #include <WebServer.h>          // для раздачи веб-интерфейса
 #include <DNSServer.h>          // для открытия веб-интрефейса автоматом(принудительно)
 #include <EthernetENC.h>        // Ethernet
-#include <HTTPClient.h>         // http client для отправки запросов
-#include <WiFiClientSecure.h>   // для отключения проверки ssl сертификата для https
+#include <HTTPClient.h>         
 #include <PCF8574.h>            // для расширителя портов на реле
 #include <CRC32.h>              // преобразование в 32-битное значение(для моздания ID c MAC-адреса)
 
@@ -55,9 +54,9 @@ EthernetClient client;     // для Ethernet
 
 // Структура для хранения настроек
 struct {
-  char espID[7];                       // ID устройства
-  String ssid_WiFi = "Keenetic-2238";  // Название сети WiFi
-  String password_WiFi = "yxmYfeNx";   // Пароль сети WiFi
+  char espID[7];                   // ID устройства
+  String ssid_WiFi = "POCO X6 5G";     // Название сети WiFi
+  String password_WiFi = "123456789";  // Пароль сети WiFi
   String ssid_AP = "Teplica";          // Название сети WiFi точки доступа
   uint8_t gUTC = 3;                    // Часовой пояс RTC
 } settings;

@@ -10,7 +10,7 @@ void goodCO2(char* str) {
   showLoadingProgressBar(str_out, true);
 }
 
-/*void initCO2Sensor() {
+void initCO2Sensor() {
   Serial.println("Инициализация CO2 датчиков...");
 
   if (scd30.begin()) {
@@ -26,16 +26,10 @@ void goodCO2(char* str) {
   }
 
   showLoadingProgressBar("CO2 Sensor", false);
-}*/
-
-void initCO2Sensor() {
-  Serial.println("Инициализация CO2 датчиков...");
-  scd30.begin();
-  goodCO2("SCD30");
 }
 
 void readCO2ppm() {
-  //if (!isPresent.CO2Sensor) return;
+  if (!isPresent.CO2Sensor) return;
 
   if (activeCO2Sensor == "SCD30") {
     if (scd30.dataReady()) {

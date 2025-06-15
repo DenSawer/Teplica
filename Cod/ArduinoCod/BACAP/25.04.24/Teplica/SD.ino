@@ -125,7 +125,6 @@ void saveData() {
 
   // Формируем JSON
   JsonDocument doc;
-  String jsonData;
   char tempStr[8];
   doc["date"] = dateStr;
   doc["time"] = timeStr;
@@ -139,38 +138,8 @@ void saveData() {
   doc["CO2ppm"] = data.CO2ppm;
 
   serializeJson(doc, file);
-  serializeJson(doc, jsonData);
   file.println();
   file.close();
-  sendJSON(jsonData);
 
   Serial.println("Данные сохранены раз в 30 минут.");
-}
-
-void sendJSON(String jsonData) {
-  WiFiClientSecure client;
-  client.setInsecure();  // Отключаем проверку SSL
-
-  HTTPClient https;
-
-  String url = "https://teplica.denserver.ru/api/upload/" + String(settings.espID);
-  Serial.println("Отправка JSON на: " + url);
-  
-  if (https.begin(client, url)) {
-    https.addHeader("Content-Type", "application/json");
-
-    int httpCode = https.POST(jsonData);
-
-    if (httpCode > 0) {
-      Serial.printf("Код ответа сервера: %d\n", httpCode);
-      String response = https.getString();
-      Serial.println("Ответ сервера: " + response);
-    } else {
-      Serial.printf("Ошибка POST: %s\n", https.errorToString(httpCode).c_str());
-    }
-
-    https.end();
-  } else {
-    Serial.println("Ошибка инициализации HTTPS-соединения");
-  }
 }

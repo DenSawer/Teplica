@@ -92,23 +92,50 @@ bool connectGPRS() {
   return connected;
 }
 
-// Проверка наличия ENC28J60 (ответ по SPI)
-void initEthernet() {
-  // Пытаемся прочитать регистр, как минимум должен быть ненулевой ответ
-  //Ethernet.init(ETHERNET_CS_PIN);
-  //Ethernet.begin(mac);
-  delay(500);
-  isPresent.Ethernet = true;
-  showLoadingProgressBar("Ethernet", isPresent.Ethernet);
-  /*isPresent.Ethernet = Ethernet.hardwareStatus() == EthernetNoHardware ? false : true;
-  showLoadingProgressBar("Ethernet", isPresent.Ethernet);*/
+// Функция генерации случайного MAC-адреса
+void generateRandomMAC(uint8_t *mac) {
+  mac[0] = 0x02;  // Локально администрируемый MAC (02:xx:xx:xx:xx:xx)
+  for (int8_t i = 1; i < 6; i++) {
+    mac[i] = random(0, 256);
+  }
 }
 
-// Подключение по DHCP
+
+// Функция проверки наличия Ethernet модуля - ENC28J60
+void initEthernet() {
+  Ethernet.init(ETHERNET_CS_PIN);  // Инициализация ENC28J60 с указанием CS-пина
+  static uint32_t start = millis();
+  bool Eth = Ethernet.hardwareStatus() != EthernetNoHardware;
+  while (millis() - start < 3000 && Eth)
+    ;
+  isPresent.Ethernet = Eth;
+  showLoadingProgressBar("Ethernet", Eth);
+}
+
+// Проверка наличия Ethernet-кабеля (линк)
+bool isEthernetLinkActive() {
+  if (!isPresent.Ethernet) return false;  // Если модуля нет, не имеет смысла проверять линк
+  extern uint16_t enc28j60PhyRead(uint8_t address);
+  uint16_t phstat2 = enc28j60PhyRead(0x11);
+  return (phstat2 & (1 << 10)) != 0;
+}
+
+
+// Функция инициализации ENC28J60 и получения IP через DHCP
 bool connectEthernet() {
   if (!isPresent.Ethernet) return false;
-  Ethernet.init(ETHERNET_CS_PIN);
-  return Ethernet.begin(mac);
+  uint8_t mac[6];
+  generateRandomMAC(mac);  // Генерируем случайный MAC-адрес
+
+
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Ошибка: не удалось получить IP-адрес через DHCP");
+    return false;
+  }
+
+  Serial.print("IP-адрес: ");
+  Serial.println(Ethernet.localIP());
+  return true;
 }
 
 /*
@@ -139,6 +166,67 @@ bool sendHTTPRequestSIM(const char *host) {
   }
   return false;
 }*/
+
+String httpRequestSIM(const char *host) {
+  sim800.print("AT+CIPSTART=\"TCP\",\"");
+  sim800.print(host);
+  sim800.println("\",\"80\"");
+
+  uint32_t start = millis();
+  while (millis() - start < 5000) {
+    if (sim800.find("CONNECT OK")) break;
+  }
+
+  sim800.println("AT+CIPSEND");
+  start = millis();
+  while (millis() - start < 2000) {
+    if (sim800.find(">")) break;
+  }
+
+  sim800.print("GET / HTTP/1.1\r\nHost: ");
+  sim800.print(host);
+  sim800.print("\r\nConnection: close\r\n\r\n");
+  sim800.write(26);  // Отправка Ctrl+Z для завершения команды
+
+  String response = "";
+  start = millis();
+  while (millis() - start < 8000) {
+    if (sim800.available()) {
+      char c = sim800.read();
+      response += c;
+    }
+  }
+
+  return response;
+}
+
+// Универсальная функция HTTP-запросов
+String httpRequest(const char *url, const char *method = "GET", const char *payload = nullptr) {
+  if (InternetFromSIM = false) {
+    httpRequestSIM(url);
+    return "";
+  }
+  HTTPClient http;
+  http.begin(url);  // Открываем соединение с URL
+
+  int16_t httpCode;
+  if (strcmp(method, "POST") == 0 && payload) {
+    http.addHeader("Content-Type", "application/json");
+    httpCode = http.POST(payload);  // Отправка POST-запроса с телом
+  } else {
+    httpCode = http.GET();  // Отправка GET-запроса
+  }
+
+  String response = "";
+  if (httpCode > 0) {
+    response = http.getString();  // Получаем ответ от сервера
+  } else {
+    Serial.printf("Ошибка HTTP-запроса: %s\n", http.errorToString(httpCode).c_str());
+  }
+
+  http.end();  // Закрываем соединение
+  return response;
+}
 
 // Функция инициализации Wi-Fi
 void initWiFi() {
@@ -245,7 +333,7 @@ void connectToInternet() {
     isConnect = true;
     return;
   }
-  /*if (connectEthernet()) {
+  if (connectEthernet()) {
     Serial.println("** Connected via Ethernet **");
     InternetFromSIM = false;
     isConnect = true;
@@ -256,7 +344,7 @@ void connectToInternet() {
     InternetFromSIM = true;
     isConnect = true;
     return;
-  }*/
+  }
 
   Serial.println("** No Internet connection **");
   InternetFromSIM = false;
