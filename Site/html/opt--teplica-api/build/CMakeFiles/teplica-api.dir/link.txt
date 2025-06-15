@@ -1,0 +1,1 @@
+/usr/bin/c++ "CMakeFiles/teplica-api.dir/main.cpp.o" -o teplica-api 

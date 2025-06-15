@@ -1,0 +1,3 @@
+/opt/teplica-api/build/CMakeFiles/teplica-api.dir
+/opt/teplica-api/build/CMakeFiles/edit_cache.dir
+/opt/teplica-api/build/CMakeFiles/rebuild_cache.dir
