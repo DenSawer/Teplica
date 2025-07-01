@@ -85,17 +85,3 @@ make
 Сайт: **https://teplica.denserver.ru**  
 API: `https://teplica.denserver.ru/api/upload/{device_id}`
 
----
-
-## 🛡️ Лицензия
-
-Проект распространяется под лицензией **MIT** — см. файл [`LICENSE`](LICENSE)
-
----
-
-## 👤 Автор
-
-**DenSawer**  
-GitHub: [github.com/DenSawer/Teplica](https://github.com/DenSawer/Teplica)
-
----
