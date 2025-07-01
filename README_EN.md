@@ -9,6 +9,8 @@
 A complete IoT system for monitoring and managing a greenhouse.  
 Deployed at: **[teplica.denserver.ru](https://teplica.denserver.ru)**
 
+![Screenshot of Teplica website](web-site.png)
+
 ---
 
 ## 📦 Project Structure
