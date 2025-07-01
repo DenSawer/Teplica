@@ -51,7 +51,7 @@ cd server/backend
 mkdir build && cd build
 cmake ..
 make
-./greenhouse-server
+./teplica-api
 ```
 
 ---
