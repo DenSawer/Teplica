@@ -13,7 +13,7 @@
 ├── firmware/              # Код для ESP32
 │   ├── Teplica/           # Основной код прошивки
 │   ├── libraries/         # Сторонние библиотеки
-│   └── sd/                # Работа с SD-картой
+│   └── sd/                # Файлы для SD-карты
 ├── server/
 │   ├── backend/           # C++ сервер (Crow)
 │   └── web-interface/     # Веб-интерфейс: HTML, JS, CSS
