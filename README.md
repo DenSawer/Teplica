@@ -1,3 +1,6 @@
+[![Website](https://img.shields.io/badge/🌐%20Website-teplica.denserver.ru-blue?style=flat-square&logo=google-chrome)](https://teplica.denserver.ru)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
+[![Author](https://img.shields.io/badge/author-DenSawer-orange?style=flat-square&logo=github)](https://github.com/DenSawer)
 
 # 🌿 Teplica — Умная теплица
 
