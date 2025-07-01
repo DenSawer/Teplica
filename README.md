@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
 [![Author](https://img.shields.io/badge/author-DenSawer-orange?style=flat-square&logo=github)](https://github.com/DenSawer)
 
-# 🌿 Teplica — Умная теплица
+# 🌿 Teplica — Блок автоматизации и управления теплица
 
 Полноценная IoT-система для мониторинга и управления теплицей.  
 Проект развёрнут на: **[teplica.denserver.ru](https://teplica.denserver.ru)**
