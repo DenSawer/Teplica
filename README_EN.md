@@ -1,8 +1,8 @@
 [![Website](https://img.shields.io/badge/🌐%20website-teplica.denserver.ru-blue?style=flat-square)](https://teplica.denserver.ru)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
 [![Author](https://img.shields.io/badge/author-DenSawer-orange?style=flat-square&logo=github)](https://github.com/DenSawer)
-[![English](https://img.shields.io/badge/EN-English-blue?style=flat-square)](README.md)
-[![Русский](https://img.shields.io/badge/RU-Русский-red?style=flat-square)](README_ru.md)
+[![English](https://img.shields.io/badge/EN-English-blue?style=flat-square)](README_EN.md)
+[![Русский](https://img.shields.io/badge/RU-Русский-red?style=flat-square)](README.md)
 
 # 🌿 Teplica — Automation and Greenhouse Control Block
 
