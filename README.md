@@ -8,6 +8,7 @@
 
 Полноценная IoT-система для мониторинга и управления теплицей.  
 Проект развёрнут на: **[teplica.denserver.ru](https://teplica.denserver.ru)**
+⚠️Сайт временно не доступен из-за перееезда на другой сервер⚠️
 
 ![Screenshot of Teplica website](web-site.png)
 
